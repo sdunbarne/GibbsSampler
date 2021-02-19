@@ -10,6 +10,9 @@
 % \input{../../../../etc/mzlatex_macros}
 \input{../../../../etc/pdf_macros}
 
+% Define a new command so Boltzmann constant is not confused.
+\newcommand{\kT}{{\text k}_{\text{Boltz}}T}
+
 \bibliographystyle{plain}
 
 \begin{document}
@@ -173,7 +176,7 @@ statistical models.  This is done by generating a \emph{Gibbs sequence}%
 of random variables
 \begin{equation}
     Y'_0, X'_0, Y'_1, X'_1, Y'_2, X'_2, \dots, Y'_k, X'_k.%
-    \label{eq:applicationsmetropolis:gibbsseq}
+    \label{gibbssampler:eq:gibbsseq}
 \end{equation}
 The initial value \( Y'_0 = y'_0 \) is specified and the rest of the
 sequence is obtained iteratively by alternately generating values from
@@ -193,6 +196,8 @@ is effectively a sample point from \( f_X(x) \).
 This section discusses Gibbs sampling in detail for the simplest case of
 a \( 2 \times 2 \) table.  Suppose \( X \) and \( Y \) are each
 marginally Bernoulli random variables with joint distribution
+(the probabilities $X$ are by rows, with $Y=0$ the first row, $Y=1$
+the second row)
 \[
     \bordermatrix{ & 0 & 1 \cr
     0 & p_1 & p_2 \cr
@@ -233,7 +238,7 @@ given \( X \) and \( A_{x \given y} \) has the conditional probabilities
 of \( X \) given \( Y \).
 
 As an example, to generate the marginal distribution of \( X \) uses the
-\( X' \) sequence from~\eqref{eq:applicationsmetropolis:gibbsseq}. From \(
+\( X' \) sequence from~\eqref{gibbssampler:eq:gibbsseq}. From \(
 X'_0 \) to \( X'_1 \) goes through \( Y'_0 \), so the iteration sequence
 is \( X'_0 \to Y'_1 \to X'_1 \) and \( X'_0 \to X'_1 \) is a two-stage
 Markov chain, with transition probability
@@ -310,14 +315,16 @@ are in fact
 \] Another standard exercise is to show the conditional probability
 densities are
 \[
-    f_{x \given y}(x) = \frac{1}{\sqrt{2\pi (1-\rho^2)}} \EulerE^{-(x-y)^2/
+    f_{x \given y}(x) = \frac{1}{\sqrt{2\pi (1-\rho^2)}}
+    \EulerE^{-(x-\rho y)^2/
     (2(1-\rho^2))}
 \] and
 \[
-    f_{y \given x}(y) = \frac{1}{\sqrt{2\pi (1-\rho^2)}} \EulerE^{-(y-x)^2/
+    f_{y \given x}(y) = \frac{1}{\sqrt{2\pi (1-\rho^2)}}
+    \EulerE^{-(y-\rho x)^2/
     (2(1-\rho^2))}.
 \] That is, \( X_i \given X_j \sim N(x_j, (1-\rho^2)) \). Figure~%
-\ref{fig:gibbsampler:bivarnorm} illustrates the bivariate normal
+\ref{fig:gibbssampler:bivarnorm} illustrates the bivariate normal
 density with \( \rho = 0.8 \).  The scaling of the \( z \)-axis is
 approximately equal to the \( x \) and \( y \) axes, so that the density
 appears less ``hill-like'' than is often illustrated.  The marginal
@@ -374,21 +381,21 @@ grid3(new grid3routines [] {XYXgrid, ZXZgrid(2), ZYZgrid(2)},
       pGrid=new pen[] {red, blue, black},
       pgrid=new pen[] {0.5red, lightgray, lightgray});
 
-xaxis3(Label("$x$",position=MidPoint,align=SE), 
-       Bounds(Min,Min), 
-       OutTicks());
-yaxis3(Label("$y$",position=MidPoint,align=SW), 
-       Bounds(Min,Min), 
-       OutTicks());
-zaxis3(Bounds(Max,Min));
-zaxis3(Label("$z$",position=EndPoint,align=N+W),
-       Bounds(Min,Max),
-       InTicks(beginlabel=false,endlabel=false,Label(align=Y)),
-       arrow=Arrow3
-       );
+\\ xaxis3(Label("$x$",position=MidPoint,align=SE), 
+\\        Bounds(Min,Min), 
+\\        OutTicks());
+\\ yaxis3(Label("$y$",position=MidPoint,align=SW), 
+\\        Bounds(Min,Min), 
+\\        OutTicks());
+\\ zaxis3(Bounds(Max,Min));
+\\ zaxis3(Label("$z$",position=EndPoint,align=N+W),
+\\        Bounds(Min,Max),
+\\        InTicks(beginlabel=false,endlabel=false,Label(align=Y)),
+\\        arrow=Arrow3
+\\        );
 \end{asy}
     \caption{Bivariate normal probability density with marginals.}%
-    \label{fig:gibbsampler:bivarnorm}
+    \label{fig:gibbssampler:bivarnorm}
 \end{figure}
 
 Because the marginals are known, using the Gibbs sampler is not
@@ -399,7 +406,7 @@ steps and to allow for convergence to the stationary distribution, the
 first \( 500 \) steps are discarded, using only the last \( 500 \)
 steps.  The first two subgraphs show the frequencies of the sampled
 marginal distributions, along with the theoretical densities in red.
-The correspondence is appears close.  Better than a visual comparison to
+The correspondence is appears close.  Better than a visual comparison of
 the densities is to use a Q-Q plot comparing the sample quantiles to the
 quantiles of the standard normal distribution.  The straight line
 correspondence of the quantiles over several standard deviations
@@ -435,10 +442,10 @@ random variables and events:
         \( [S=0] \), the event that the email is \emph{not} spam, a
         negative outcome with \( \Prob{S = 0} = 1 - \psi \),
     \item
-        \( [R=1] \), the event that the email is correctly marked spam,
+        \( [R=1] \), the event that a spam email is correctly marked spam,
         a \emph{true positive}
     \item
-        \( [R=0] \), the event that the email is \emph{incorrectly}
+        \( [R=0] \), the event that a non=spam email is \emph{incorrectly}
         marked spam, a \emph{false negative}.
 \end{itemize}
 Then define the following parameters:
@@ -523,7 +530,7 @@ confidence interval using the Beta cdf \(
 \operatorname{Beta}
 (p_{-}, \alpha_0, \beta_0) = 0.025 \) and \(
 \operatorname{Beta}
-(p_{+}, \alpha_0, \beta_0) = 0.975 \) is \( (0.20786 0.26021) \).  This
+(p_{+}, \alpha_0, \beta_0) = 0.975 \) is \( (0.20786, 0.26021) \).  This
 is approximately the same as the frequentist confidence interval.
 
 Next use a Gibbs sampler to get point and interval estimates for \( \psi
@@ -550,7 +557,7 @@ and
     \operatorname{Beta}
     (\alpha_n, \beta_n) \\
 \end{align*}
-where \( V + X + Y \), \( \alpha_n = \alpha_0 + V \) and \( \beta_n = n
+where \( V = X + Y \), \( \alpha_n = \alpha_0 + V \) and \( \beta_n = n
 - V \). Use one value of \( \psi \) to find the next in the typical
 Gibbs iteration.  This is in effect a Markov Chain for which the
 limiting distribution is the posterior of \( \psi \).  At each
@@ -569,7 +576,7 @@ Sampler method.
 
 \subsection*{Gibbs Sampling in Statistics}
 
-Suppose \( f(x_1, x_2, \dots, x_N) \) is a probability distribution in
+Suppose \( f(x_1, x_2, \dots, x_N) \) is a joint probability density in
 which the variables represent parameters of a statistical model.  The
 goal is to get point and interval estimates for these parameters. To fit
 this into the Gibbs sampling framework, assume that all the
@@ -577,7 +584,7 @@ single-variable conditional probability densities
 \[
     f(x_i \given x_j, j \ne i)
 \] are available, that is, are a type for which samples can be obtained
-using standard algorithms.  Examples of available distributions include
+using standard algorithms.  Examples of available densities include
 the uniform, the normal, the gamma, the Poisson, and any finite
 distribution.  To generate a sequence of samples, select \(
 \overrightarrow{x}^0 = (x_1^0, x_2^0, \dots, x_N^0) \) arbitrarily and
@@ -604,11 +611,11 @@ One cycle, similar to a raster scan of an image, produces a new value \(
 \[
     \overrightarrow{x}^0, \overrightarrow{x}^1, \overrightarrow{x}^2,
     \dots, \overrightarrow{x}^M
-\] which approximates a sample from the probability distribution \(
+\] which approximates a sample from the probability density \(
 f(x_1, x_2, \dots, x_N) \).
 
-Using this sample, almost any property of the probability distribution
-can be investigated.  For example, focusing on only the fist component
+Using this sample, almost any property of the probability density
+can be investigated.  For example, focusing on only the first component
 of each \( \overrightarrow{x}^k \) produces a sample
 \[
     x_1^0, x_1^1, x_1^2,\dots, x_1^M
@@ -621,8 +628,8 @@ formally given by the integral
 numerical integration algorithm.  The expected value of the first
 component \( x_1 \),
 \[
-    \E{x_1} = int_{x_1} x_1 f(x_1) \df{x_1}
-\] is estimated by the average of the sample \( x_1^0, x_1^1, x_1^2,\dots,
+    \E{x_1} = \int_{x_1} x_1 f(x_1) \df{x_1}
+\] is estimated by the arithmetic mean of the sample \( x_1^0, x_1^1, x_1^2,\dots,
 x_1^M \).  A \( 95\% \) confidence interval for \( x_1 \) can be taken
 directly from the sample.
 
@@ -649,7 +656,7 @@ definitions and assumptions standard theory shows the sample mean from a
 normal distribution given the population precision has a conditional
 posterior distribution
 \[
-    (\mu \given \tau^{(i-1)}, \text{data}) \sim N\left(\bar{x}, \frac{1}
+    (\mu \given \tau, \text{data}) \sim N\left(\bar{x}, \frac{1}
     {n \tau} \right).
 \]
 
@@ -681,22 +688,21 @@ variance) given the mean has a conditional posterior distribution
     & \propto \tau^{-1} \times \tau^{n/2} \exp \left( -\frac{\tau}{2}
     \left[ \sum\limits_{i=1}^n (x_i - \mu)^2 + \sum\limits_{i=1}^n (\mu
     - \bar{x})^2 \right] \right) \\
-    & \propto \tau^{n/2-1} \times \exp \left( -\tau \left[ \frac{2}{n-1}
+    & \propto \tau^{n/2-1} \times \exp \left( -\frac{\tau}{2} \left[(n-1)
     s^2 + n(\mu - \bar{x})^2 \right] \right) \\
 \end{align*}
-(Double check last step, may have some fractions wrong.) The last
+The last
 expression is now recognizable as a Gamma distribution with shape
-parameter \( \frac{n}{2} \) and rate (inverse scale parameter) \( \frac{2}
-{n-1} s^2 + n(\mu - \bar{x})^2 \). Having this distribution is
+parameter \( \frac{n}{2} \) and rate (inverse scale parameter) \(
+(n-1) s^2 + n(\mu - \bar{x})^2 \). Having this distribution is
 convenient for implementing the Gibbs sampler.  (As a side remark, in
-many author's derivations for Bayesian statistics, the prior for \( \tau
+some derivations for Bayesian statistics, the prior for \( \tau
 \) is taken to be \(
 \operatorname{Gamma}
 (\alpha, \beta) \) which leads to a similar looking Gamma posterior
 including the additional parameters \( \alpha \) and \( \beta \), but
 for Gibbs sampling, this is unnecessary because the theory shows that
-the sampling will converge even with the simpler choice.) (Remark:  make
-sure this is true.)
+the sampling will converge even with the simpler choice.) 
 
 The R script below implements the Gibbs sampler for these parameters,
 with \( n = 30 \), a typical value, and postulating \( \bar{x} = 15 \),
@@ -715,7 +721,7 @@ sampler for the parameters of a normal distribution.
 
 \subsection*{Bayesian Hierarchical Models}
 
-Apply this formalism to a \defn{Bayesian hierarchical model}.%
+Apply Gibbs sampling formalism to a \defn{Bayesian hierarchical model}.%
 \index{Bayesian hierarchical model}
 Hierarchical Bayesian models naturally describe the connections among
 data, observed parameters and other unobserved parameters, sometimes
@@ -748,7 +754,7 @@ conditioned on the data \( X \)
     \beta) h(\beta).
 \] The constant of proportionality is the reciprocal of
 \[
-    \int_{\lambda} int_{\beta} f(X \given \lambda) g(\lambda \given
+    \int_{\lambda} \int_{\beta} f(X \given \lambda) g(\lambda \given
     \beta) h(\beta) \df{\beta} \df{\lambda}
 \] which is independent of the parameters \( \lambda \) and \( \beta \),
 though dependent on the data \( X \).  The integrals, (or sums, in the
@@ -818,10 +824,10 @@ is a gamma distribution with parameters \( s_i + \alpha -1 \) and \( 1/(t_i
 sampling can be applied at this step.  The density for \( \beta \),
 conditioned on the other parameters, is proportional to
 \[
-    \frac{\EulerE^({\sum_{i=1}^{10}\lambda_i + \delta})\beta}{\beta^{10\alpha+\gamma+1}}
+    \frac{\EulerE^{-({\sum_{i=1}^{10}\lambda_i + \delta})\beta}}{\beta^{10\alpha+\gamma+1}}
 \] showing that \( \Prob{\beta \given \lambda_1, \lambda_2, \dots,
 \lambda_{10}, X} \) is an inverse gamma distribution with parameters \(
-g + 10 \alpha \) and \( \sum\limits_{i=1}^{10} \lambda_i+\delta \).
+\gamma + 10 \alpha \) and \( \sum\limits_{i=1}^{10} \lambda_i+\delta \).
 This too is an available distribution.
 
 This model is an example of a \emph{conjugate hierarchical model}, that
@@ -835,7 +841,9 @@ requirement that these distributions be available.
 A simple model of a digital image consists of pixel elements arranged on
 a rectangular lattice with \( N \) sites.  Each pixel takes a value from
 a set \( S = \set{1,2, \dots, K} \) of levels, such as grayscale or
-color levels.  An image is a configuration \( \omega \in \Omega \) with
+color levels.  For simplicity and analogy to the Ising model, take a
+black and white image with pixel levels \( -1, +1 \).
+An image is a configuration \( \omega \in \Omega \) with
 an assignment of a level to each of the \( N \) sites.  Even modestly
 sized images result in immensely large configuration spaces, for a \(
 100 \times 100 \) binary image, \( \card{\Omega} = 2^{10000} \).
@@ -876,7 +884,7 @@ By the Law of Total Probability the denominator is
     \Prob{\omega^{\text{blurred}} \given \omega} \Prob{\omega} \df{\omega}.
 \] This integral (or sum) is over all \( \omega \in \Omega \) and does
 not depend on \( \omega \).  This is reminiscent of the partition
-function and recalling the Metropolis algorithm we ignore it.
+function and recalling the Metropolis algorithm just ignore it.
 
 The likelihood function \( \Prob{\omega^{\text{blurred}} \given \omega} \)
 is%
@@ -889,23 +897,23 @@ is%
 \] where any constant of proportionality will be absorbed into the
 denominator above.
 
-An image has patterns, i.e.\ contiguous regions of similar pixel values.
-This is reminiscent of the Ising model, where after magnetization the
-lattice has high-degree long-range correlation between pixels, that is,
-image-like features.  On the other hand, if neighboring values are
-uncorrelated, the result is the visual equivalent of noise, reminiscent
-of the Ising model at high temperatures.
+An image has patterns, i.e.\ contiguous regions of similar pixel
+values. On the other hand, if neighboring values are uncorrelated, the
+result is the visual equivalent of noise, reminiscent of the Ising
+model at high temperatures.  This is reminiscent of the Ising model,
+where after magnetization the lattice has high-degree long-range
+correlation between pixels, that is, image-like features.
 
 This suggests using the Boltzmann probability distribution with the
-Ising energy function as the prior distribution on images, that is
+Ising potential energy function as the prior distribution on images, that is
 \[
-    \Prob{\omega} \propto \EulerE^{-E_{\text{ising}}(\omega)/kT}
+    \Prob{\omega} \propto \EulerE^{-E_{\text{ising}}(\omega)/\kT}
 \] where
 \[
     E_{\text{ising}}(\omega) = -J \sum\limits_{i=1}^{N} \sum\limits_{k=1}^4
-    \omega_{i, j} \omega_{\left\langle i,j \right\rangle[k]}
+    \omega_{i, j} \omega_{\left\langle i \right\rangle[k]}
 \] is the nearest neighbor affinity. To retain the idea of correlated
-pixel values, let \( kT/J = 1 < T_c \), the critical temperature below
+pixel values, let \( \kT/J = 1 < T_c \), the critical temperature below
 which a phase transition occurs.
 
 Putting all the parts together, the posterior distribution, \( \Prob{\omega
@@ -915,7 +923,7 @@ Putting all the parts together, the posterior distribution, \( \Prob{\omega
     {1}{2\sigma^2 } \sum\limits_{i=1}^N(\omega_i^{\text{blurred}} -
     \omega_i)^{2}} \EulerE^{-E_{\text{ising}}} \\
     &\propto \EulerE^{-\left[ \frac{1}{2\sigma^2 } \sum\limits_{i=1}^N(\omega_i^
-    {\text{blurred}} - \omega_i)^{2} + E_{\text{ising}} \right] }
+    {\text{blurred}} - \omega_i)^{2} + E_{\text{ising}} \right] }.
 \end{align*}
 Viewing this from a statistical mechanics perspective leads to an analog
 of an energy function
@@ -924,7 +932,7 @@ of an energy function
     } \sum\limits_{i=1}^N(\omega_i^{\text{blurred}} - \omega_i)^{2} + E_
     {\text{ising}} \\
     &= \frac{1}{2\sigma^2 } \sum\limits_{i=1}^N(\omega_i^{\text{blurred}}
-    + \omega_i)^{2} - \sum\limits_{\langle i,j\rangle} \omega_i\omega_j
+    - \omega_i)^{2} - \sum\limits_{\langle i\rangle [k]]} \omega_i\omega_k
     \\
 \end{align*}
 where \( {\langle i,j\rangle} \) indicates the set of nearest neighbor
@@ -938,7 +946,7 @@ potential energy penalty for straying too far from the data \( \omega^{\text
 {blurred}} \) while the second term represents a negative potential
 energy reflecting the desire to align neighboring pixel values making
 them conform to the prior notion of a generic image.  The optimal
-solution balances between these two conflicting constraints.
+solution balances between these two conflicting objectives.
 
 Creating an energy function to minimize leads to a contrast in methods.
 The Ising model starts with an objective function and interprets it as a
@@ -948,20 +956,20 @@ probabilistic situation with a Bayesian structure, leading to an energy
 function.
 
 To implement Gibbs sampling, the probability of \( \omega_i \)
-conditioned on all the other sites depends on only the sites in the
+conditioned on \emph{all} the other sites depends on \emph{only} the sites in the
 nearest neighborhood set.  Suppressing the dependence on \( \omega^{\text
 {blurred}} \), this means
 \begin{align*}
     \Prob{\omega_i \given \omega_j, j \ne i } &= \Prob { \omega_i \given
-    \omega_j, j \in \langle i,j \rangle } \\
-    & \propto \EulerE^{-E_i(\omega_i \given \omega_j, j \in \langle i,j
+    \omega_j, j \in \langle i \rangle } \\
+    & \propto \EulerE^{-E_i(\omega_i \given \omega_j, j \in \langle i
     \rangle)}
 \end{align*}
 where
 \[
-    E_i(\omega_i \given \omega_j, j \in \langle i,j \rangle) = \frac{1}{2\sigma^2}
-    (\omega_i^{\text{blurred}}-\omega_i)^2 - \sum\limits_{\langle i, j
-    \rangle} \omega_i\omega_j.
+    E_i(\omega_i \given \omega_j, k \in \langle i\rangle) = \frac{1}{2\sigma^2}
+    (\omega_i^{\text{blurred}}-\omega_i)^2 - \sum\limits_{\langle i
+    \rangle[k]]} \omega_i\omega_k.
 \] (Continue to check signs on this energy function.) A probability
 distribution whose conditional probabilities depend on only the values
 in a neighborhood system is called a \defn{Gibbs distribution}%
@@ -974,16 +982,13 @@ sequence of raster scans, in order by rows or columns, guaranteeing all
 sites are visited many times.  At a selected site \( i \), select \(
 \omega_i = k \) with probability
 \[
-    \Prob{\omega_i = k} \propto \EulerE^{-\frac{1}{2\sigma^2}(\omega_i^{\text
-    {blurred}}-k)^2 - \sum\limits_{\langle i, j \rangle} k \omega_j}.
+    \Prob{\omega_i = \ell} \propto \EulerE^{-\frac{1}{2\sigma^2}(\omega_i^{\text
+    {blurred}}-\ell)^2 - \sum\limits_{\langle i \rangle [k]]} \ell \omega_k}.
 \] Repeating this with many raster scans results in a sequence of images
 that approximates a sample from the posterior distribution.  Note the
 connection to the previous simple Gibbs sampling algorithm, generating a
 sample from \( f(x) \) by sampling iteratively from the conditional
-distribution \( f(x, \given y) \) then \( f(y \given x) \), creating
-\[
-    Y'_0, X'_0, Y'_1, X'_1, Y'_2, X'_2, \dots, Y'_k, X'_k
-\] except that now there are many more conditional distributions, one
+distributions, except that now there are many more conditional distributions, one
 for each pixel.
 
 Gibbs sampling fits into the Hastings generalization of the Metropolis
@@ -1031,15 +1036,15 @@ the rate of convergence is slow.  Theoretically, for a \( 100 \times 100
 practice, it takes about \( 300 - 1000 \) raster scans to produce
 acceptable results.
 
-For a two-color (\( k = 0 \) or \( 1 \)) image Gibbs sampling with
+For a black and white (\( k = -1 \) or \( 1 \)) image Gibbs sampling with
 annealing is especially straightforward to implement using the ideas of
 the section on Gibbs sampling.  At the pixel \( \omega_i \) define
 \[
     E^k = \frac{1}{2 \sigma^2}( k - \omega_i^{\text{blurred}})^2 + k
     \sum\limits_{\langle i,j\rangle} \omega_j.
-\] Set \( \omega_i = k \) with probability
+\] Set \( \omega_i = \pm 1 \) with probability
 \[
-    \frac{\EulerE^{-E^k/T}}{\EulerE^{-E^0/kT} + \EulerE^{-E^1/kT}}.
+    \frac{\EulerE^{-E^k/T}}{\EulerE^{-E^{-1}/\kT} + \EulerE^{-E^1/\kT}}.
 \] (Continue to check signs on this energy function.  Note also the
 multiple uses of the symbol \( k \) here along with possible typos.)
 
@@ -1079,13 +1084,13 @@ Methods'' by Richey
 \renewcommand{\theexercise}{\arabic{exercise}}
 
 \begin{exercise}
-    For the probability density function for the bivariate normal
+    The probability density function for the bivariate normal
     distribution with means \( 0 \) and variance \( 1 \) for the
     variables and correlation \( \rho \) between the two variables is
     \[
         f(x, y) = \frac{1}{2\pi \sqrt{1 - \rho^2}} \EulerE^{- \frac{x^2
-        - 2 \rho x y + y^2}{2(1-\rho^2)}}
-    \] show that the \( x \) marginal is
+        - 2 \rho x y + y^2}{2(1-\rho^2)}}.
+    \] Show that the \( x \) marginal is
     \[
         f_{x}(x) = \frac{1}{\sqrt{2\pi}} \EulerE^{-x^2/2}.
     \]
@@ -1114,6 +1119,35 @@ Methods'' by Richey
         &= \frac{1}{\sqrt{2\pi}} \EulerE^{- \frac{x^2}{2}}
     \end{align*}
 \end{solution}
+\begin{exercise}
+    The probability density function for the bivariate normal
+    distribution with means \( 0 \) and variance \( 1 \) for the
+    variables and correlation \( \rho \) between the two variables is
+    \[
+        f(x, y) = \frac{1}{2\pi \sqrt{1 - \rho^2}} \EulerE^{- \frac{x^2
+        - 2 \rho x y + y^2}{2(1-\rho^2)}}.
+    \] Show that the \( x \) conditional given \( y \)  is
+    \[
+        f_{x}(x) = \frac{1}{\sqrt{2\pi}} \EulerE^{-x^2/2}.
+    \]
+\end{exercise}
+\begin{solution}
+  \begin{align*}
+    f_{x \given y}(x) &= f(x,y)/f_y(y) \\
+    &= \frac{1}{2\pi \sqrt{1 - \rho^2}} \EulerE^{- \frac{x^2
+        - 2 \rho x y + y^2}{2(1-\rho^2)}}/ 
+    \frac{1}{\sqrt{2\pi}} \EulerE^{-y^2/2} \\
+    &= \frac{1}{\sqrt{2\pi (1 - \rho^2)}}
+    \EulerE^{- \frac{x^2
+        - 2 \rho x y + y^2}{2(1-\rho^2)} + (1-\rho^2)
+      y^2/(2(1-\rho^2))} \\
+    &= \frac{1}{\sqrt{2\pi (1 - \rho^2)}}
+    \EulerE^{- \frac{x^2
+        - 2 \rho x y + \rho^2 y^2}{2(1-\rho^2)} } \\
+    &= \frac{1}{\sqrt{2\pi (1 - \rho^2)}}
+    \EulerE^{- \frac{(x - \rho y^)2}{2(1-\rho^2)} }
+    \end{align*}
+\end{solution}
 
 \hr
 
@@ -1138,6 +1172,10 @@ Methods'' by Richey
     \item
     \item
 \end{enumerate}
+
+\section*{\solutionsname}
+\loadSolutions
+
 
 \hr
 
