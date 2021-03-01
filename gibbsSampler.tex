@@ -7,8 +7,8 @@
 \documentclass[12pt]{article}
 
 \input{../../../../etc/macros}
-% \input{../../../../etc/mzlatex_macros}
-\input{../../../../etc/pdf_macros}
+\input{../../../../etc/mzlatex_macros}
+%% \input{../../../../etc/pdf_macros}
 
 % Define a new command so Boltzmann constant is not confused.
 \newcommand{\kT}{{\text k}_{\text{Boltz}}T}
@@ -332,7 +332,15 @@ densities are projected onto coordinate planes at \( x = 2 \) and \( y =
 2 \).
 
 \begin{figure}
-    \centering
+  \centering
+  \includegraphics{bvn}
+  \begin{comment}
+
+    Note that there is a bug in the gs exporter that makes using the
+    graph3 axes not work.
+    See
+    https://sourceforge.net/p/asymptote/discussion/409349/thread/a52414e613/
+    After the bug gets fixed, the following should work.
 \begin{asy}
 settings.outformat = "pdf";
 settings.prc=false;
@@ -381,19 +389,24 @@ grid3(new grid3routines [] {XYXgrid, ZXZgrid(2), ZYZgrid(2)},
       pGrid=new pen[] {red, blue, black},
       pgrid=new pen[] {0.5red, lightgray, lightgray});
 
-\\ xaxis3(Label("$x$",position=MidPoint,align=SE), 
-\\        Bounds(Min,Min), 
-\\        OutTicks());
-\\ yaxis3(Label("$y$",position=MidPoint,align=SW), 
-\\        Bounds(Min,Min), 
-\\        OutTicks());
-\\ zaxis3(Bounds(Max,Min));
-\\ zaxis3(Label("$z$",position=EndPoint,align=N+W),
-\\        Bounds(Min,Max),
-\\        InTicks(beginlabel=false,endlabel=false,Label(align=Y)),
-\\        arrow=Arrow3
-\\        );
+xaxis3(  Label("$x$",position=MidPoint,align=SE),
+ Bounds(Min,Min),
+ OutTicks());
+ yaxis3( Label("$y$",position=MidPoint,align=SW),
+ Bounds(Min,Min),
+ OutTicks());
+zaxis3( Label("$z$",position=EndPoint, align=Z),
+  Bounds(Min,Max),
+  InTicks(beginlabel=false,endlabel=true,Label(align=Y)),
+  arrow=Arrow3
+  );
+zaxis3( Label("$z$",position=EndPoint, align=Z),
+  Bounds(Max,Min),
+  InTicks(beginlabel=false,endlabel=true,Label(align=X)),
+  arrow=Arrow3
+  );
 \end{asy}
+\end{comment}
     \caption{Bivariate normal probability density with marginals.}%
     \label{fig:gibbssampler:bivarnorm}
 \end{figure}
@@ -907,7 +920,7 @@ correlation between pixels, that is, image-like features.
 This suggests using the Boltzmann probability distribution with the
 Ising potential energy function as the prior distribution on images, that is
 \[
-    \Prob{\omega} \propto \EulerE^{-E_{\text{ising}}(\omega)/\kT}
+    \Prob{\omega} \propto \EulerE^{-E_{\text{ising}}(\omega)/(\kT)}
 \] where
 \[
     E_{\text{ising}}(\omega) = -J \sum\limits_{i=1}^{N} \sum\limits_{k=1}^4
@@ -1044,7 +1057,7 @@ the section on Gibbs sampling.  At the pixel \( \omega_i \) define
     \sum\limits_{\langle i,j\rangle} \omega_j.
 \] Set \( \omega_i = \pm 1 \) with probability
 \[
-    \frac{\EulerE^{-E^k/T}}{\EulerE^{-E^{-1}/\kT} + \EulerE^{-E^1/\kT}}.
+    \frac{\EulerE^{-E^k/T}}{\EulerE^{-E^{-1}/(\kT)} + \EulerE^{-E^1/(\kT)}}.
 \] (Continue to check signs on this energy function.  Note also the
 multiple uses of the symbol \( k \) here along with possible typos.)
 
@@ -1204,3 +1217,7 @@ Flesch                     : 12.0243
 Flesch-Kincaid             : 20.1649
 
 
+
+%%% Local Variables:
+%%% TeX-master: t
+%%% End:
