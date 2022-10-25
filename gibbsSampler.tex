@@ -1,17 +1,15 @@
 %%% -*-LaTeX-*-
 %%% gibbsSampler.tex.orig
 %%% Prettyprinted by texpretty lex version 0.02 [21-May-2001]
-%%% on Thu Feb  4 11:12:01 2021
-%%% for Steven R. Dunbar (sdunbar@family-desktop)
+%%% on Tue Oct 25 09:38:00 2022
+%%% for Steve Dunbar (sdunbar@family-desktop)
 
 \documentclass[12pt]{article}
 
-\input{../../../../etc/macros}
-\input{../../../../etc/mzlatex_macros}
-%% \input{../../../../etc/pdf_macros}
+\input{../../../../etc/macros} %% \input{../../../../etc/mzlatex_macros}
+\input{../../../../etc/pdf_macros}
 
 % Define a new command so Boltzmann constant is not confused.
-\newcommand{\kT}{{\text k}_{\text{Boltz}}T}
 
 \bibliographystyle{plain}
 
@@ -39,12 +37,15 @@
 % Everyone: contains no mathematics.
 % Student: contains scenes of mild algebra or calculus that may require guidance.
 Mathematically Mature:  may contain mathematics beyond calculus with
-proofs. % Mathematicians Only: prolonged scenes of intense rigor.
+proofs.  % Mathematicians Only: prolonged scenes of intense rigor.
 
 \hr
 
 \visual{Section Starter Question}{../../../../CommonInformation/Lessons/question_mark.png}
-\section*{Section Starter Question} %% TODO:  Need a starter question
+\section*{Section Starter Question}
+
+What is Bayes' Rule for \( 2 \) jointly distributed continuous random
+variables \( X \) and \( Y \)?
 
 \hr
 
@@ -52,7 +53,6 @@ proofs. % Mathematicians Only: prolonged scenes of intense rigor.
 \section*{Key Concepts}
 
 \begin{enumerate}
-        %% TODO:  Key Concept from each subsection in order
     \item
         The Gibbs sampler is an algorithm for generating random
         variables from a marginal distribution indirectly, without
@@ -63,15 +63,16 @@ proofs. % Mathematicians Only: prolonged scenes of intense rigor.
         sampling clearly illustrates the Markov chain nature of the
         process.
     \item
-        The simple case of a bivariate normal table with Gibbs sampling
-        clearly illustrates Gibbs sampling for continuous distributions.
+        The simple case of a bivariate normal density with Gibbs
+        sampling clearly illustrates Gibbs sampling for continuous
+        distributions.
     \item
         A simple Bayesian model for a spam filter illustrates typical
         Gibbs sampling.
     \item
         Suppose \( f(x_1, x_2, \dots, x_N) \) is a probability
         distribution in which the variables represent parameters of a
-        statistical model. Gibbs sampling obtains point and interval
+        statistical model.  Gibbs sampling obtains point and interval
         estimates for these parameters.
     \item
         Suppose \( X \sim N(\mu, 1/\tau) \) with \( \mu \) and \( \tau \)
@@ -79,16 +80,15 @@ proofs. % Mathematicians Only: prolonged scenes of intense rigor.
         obtains the posterior distributions of \( \mu \) and \( \tau \).
     \item
         Hierarchical Bayesian models naturally describe the connections
-        between data, observed parameters and other unobserved
-        parameters.  A simple three-level hierarchical model uses Bayes'
-        rule to bind together data, \( X \), a parameter to be
-        estimated, \( \lambda \), and an additional hyper-parameter, \(
-        \beta \).
+        among data, observed parameters and other unobserved parameters.
+        A simple three-level hierarchical model uses Bayes' rule to bind
+        together data, \( X \), a parameter to be estimated, \( \lambda \),
+        and an additional hyper-parameter, \( \beta \).
     \item
         In image degradation, a version of the Metropolis algorithm
-        called \defn{Gibbs sampling} the configuration maximizes \(
-        \Prob{\omega \given \omega^{\text{blurred}}} \), called the
-        \defn{maximum a posteriori estimate}.
+        called Gibbs sampling the configuration maximizes \( \Prob{\omega
+        \given \omega^{\text{blurred}}} \), called the maximum a
+        posteriori estimate.
 \end{enumerate}
 
 \hr
@@ -115,11 +115,11 @@ proofs. % Mathematicians Only: prolonged scenes of intense rigor.
         \index{conjugate pair}
     \item
         \defn{Hierarchical Bayesian models} naturally describe the
-        connections between data, observed parameters and other
-        unobserved parameters, sometimes called \defn{latent variables}.
-        A simple three-level hierarchical model uses Bayes' rule to bind
-        together data, \( X \), a parameter to be estimated, \( \lambda \),
-        and an additional hyper-parameter, \( \beta \).
+        connections among data, observed parameters and other unobserved
+        parameters, sometimes called \defn{latent variables}. A simple
+        three-level hierarchical model uses Bayes' rule to bind together
+        data, \( X \), a parameter to be estimated, \( \lambda \), and
+        an additional hyper-parameter, \( \beta \).
     \item
         The configuration maximizing the probability of a configuration
         given a randomly changed or blurred configuration, \( \Prob{\omega
@@ -127,7 +127,7 @@ proofs. % Mathematicians Only: prolonged scenes of intense rigor.
         posteriori estimate}.
     \item
         A version of the Metropolis algorithm called \defn{Gibbs
-        sampling}. maximizes \( \Prob{\omega \given \omega^{\text{blurred}}}
+        sampling}.  maximizes \( \Prob{\omega \given \omega^{\text{blurred}}}
         \), called the \defn{maximum a posteriori estimate}.
     \item
         A probability distribution whose conditional probabilities
@@ -138,9 +138,87 @@ proofs. % Mathematicians Only: prolonged scenes of intense rigor.
 
 \hr
 
+\section*{Notation}
+\begin{enumerate}
+    \item
+        \( f(x, y_1, \dots, y_p) \) -- a joint density
+    \item
+        \( f_{X}(x) = \int \dots \int f(x, y_1, \dots, y_p) \df{y_1}
+        \dots \df{y_p} \) -- a marginal density
+    \item
+        \( p \) -- number of parameters in the joint density
+    \item
+        \( X_1, \dots, X_m \sim f(x) \) -- sample from the density \( f(x)
+        \)
+    \item
+        \( m \) -- number of elements in the sample
+    \item
+        \( (X, Y) \) -- Starting pair of random variables
+    \item
+        \( f(x \given y) \) and \( f(y \given x) \) -- conditional
+        distributions
+    \item
+        \( Y'_0, X'_0, Y'_1, X'_1, Y'_2, X'_2, \dots, Y'_n, X'_n \) -- a
+        \emph{Gibbs sequence} of random variables
+    \item
+        \( p_1, p_2, p_3, p_4 \) -- probabilities in a \( 2 \times 2 \)
+        table
+    \item
+        \( A_{y \given x} \) and \( A_{x \given y} \) -- conditional
+        probability of \( Y \) given \( X \) and of \( X \) given \( Y \)
+        expressed in matrices
+    \item
+        \( A_{x \given x} = A_{ y \given x } A_{x \given y} \) -- the
+        transition probability matrix for the \( X' \) sequence
+    \item
+        \( f_n = (f_n(0), f_n(1)) \) -- the marginal probability
+        distribution of \( X'_n \)
+    \item
+        \( f \) -- stationary distribution satisfying \( f A_{x \given x}
+        = f \)
+    \item
+        \( \rho \) -- correlation in bivariate normal distribution
+    \item
+        \( [S=1] \), the event that the email is in fact spam
+    \item
+        \( [R=1] \), the event that a spam email is correctly marked
+        spam, a \emph{true positive},
+    \item
+        \( \psi \) -- probability an email is in fact spam
+    \item
+        \( \eta \) -- the false positive rate
+    \item
+        \( \theta \) -- the false negative rate
+    \item
+        \( \tau \) -- probability that a spam email is correctly marked
+        spam
+    \item
+        \( alpha, \beta \) -- shape parameters for the Beta distribution
+    \item
+        \( f(x_1, x_2, \dots, x_N) \) -- a joint probability density in
+        which the variables represent parameters of a statistical model
+    \item
+        \( \overrightarrow{x}^0 = (x_1^0, x_2^0, \dots, x_N^0) \), \(
+        \overrightarrow{x}^1 = (x_1^1, x_2^1, \dots, x_N^1) \) --
+        sequence of samples
+    \item
+        \( X \sim N(\mu, 1/\tau) \) -- normal distribution with \( \mu \)
+        the population mean, and \( \tau \) is the population precision
+    \item
+        \( \bar{x}, s^2 \)-- sample mean and variance
+    \item
+        \( T \) -- number of iterations in Gibbs sampling
+    \item
+        \( X \) -- parameter to estimate
+    \item
+        \( \lambda, \beta \) -- parameter and hyper-parameter in
+        Bayesian hierarchical model
+    \item
+        \( \alpha, \beta, \gamma, \delta \) parameters for distributions
+\end{enumerate}
+
 \visual{Mathematical Ideas}{../../../../CommonInformation/Lessons/mathematicalideas.png}
 \section*{Mathematical Ideas}
-\subsection*{General Theory of Gibbs Sampling}
 
 The \defn{Gibbs sampler}%
 \index{Gibbs sampler}
@@ -150,6 +228,8 @@ subsection illustrates the algorithm by exploring several examples.  In
 such cases, Gibbs sampling is based only on elementary properties of
 Markov chains.
 
+\subsection*{General Theory of Gibbs Sampling}
+
 Given a joint density \( f(x, y_1, \dots, y_p) \),%
 \index{joint density}
 the goal is to find characteristics of the marginal density%
@@ -158,7 +238,7 @@ the goal is to find characteristics of the marginal density%
     f_{X}(x) = \int \dots \int f(x, y_1, \dots, y_p) \df{y_1} \dots \df{y_p},
 \] such as the mean or variance.  Often the integrations are extremely
 difficult to do, either analytically or numerically.  In such cases the
-Gibbs sampler provides an alternative method for obtaining \( f_X(x) \).
+Gibbs sampler provides an alternate method for obtaining \( f_X(x) \).
 
 Gibbs sampling%
 \index{Gibbs sampling}
@@ -169,16 +249,17 @@ the desired degree of accuracy.
 
 First consider the two-variable case.  Starting with a pair of random
 variables \( (X, Y) \), the Gibbs sampler generates a sample from \( f(x)
-\) by sampling instead from the conditional distribution \( f(x \given y)
-\) and \( f(y \given x) \), distributions often already known in
-statistical models.  This is done by generating a \emph{Gibbs sequence}%
+\) by sampling instead from the conditional distributions \( f(x \given
+y) \) and \( f(y \given x) \).  The conditional distributions are often
+already known in statistical models.  This is done by generating a \emph
+{Gibbs sequence}%
 \index{Gibbs sequence}
 of random variables
 \begin{equation}
-    Y'_0, X'_0, Y'_1, X'_1, Y'_2, X'_2, \dots, Y'_k, X'_k.%
+    Y'_0, X'_0, Y'_1, X'_1, Y'_2, X'_2, \dots, Y'_n, X'_n.%
     \label{gibbssampler:eq:gibbsseq}
 \end{equation}
-The initial value \( Y'_0 = y'_0 \) is specified and the rest of the
+The first value \( Y'_0 = y'_0 \) is specified and the rest of the
 sequence is obtained iteratively by alternately generating values from
 \begin{align*}
     X'_j &\sim f(x \given Y'_j = y'_j) \\
@@ -186,17 +267,17 @@ sequence is obtained iteratively by alternately generating values from
 \end{align*}
 The generation of the sequence is \defn{Gibbs sampling}.%
 \index{Gibbs sampling}
-Under reasonable general conditions, the distribution of \( X'_k \)
-converges to \( f_X(x) \), the true marginal of \( X \), as \( k \to
-\infty \).  Thus for \( k \) large enough, the last observation \( X'_k \)
+Under reasonable general conditions, the distribution of \( X'_n \)
+converges to \( f_X(x) \), the true marginal of \( X \), as \( n \to
+\infty \).  Thus for \( n \) large enough, the last observation \( X'_n \)
 is effectively a sample point from \( f_X(x) \).
 
 \subsection*{Bivariate Binomial Example}
 
 This section discusses Gibbs sampling in detail for the simplest case of
 a \( 2 \times 2 \) table.  Suppose \( X \) and \( Y \) are each
-marginally Bernoulli random variables with joint distribution
-(the probabilities $X$ are by rows, with $Y=0$ the first row, $Y=1$
+marginally Bernoulli random variables with joint distribution (the
+probabilities \( X \) are by rows, with \( Y=0 \) the first row, \( Y=1 \)
 the second row)
 \[
     \bordermatrix{ & 0 & 1 \cr
@@ -238,10 +319,10 @@ given \( X \) and \( A_{x \given y} \) has the conditional probabilities
 of \( X \) given \( Y \).
 
 As an example, to generate the marginal distribution of \( X \) uses the
-\( X' \) sequence from~\eqref{gibbssampler:eq:gibbsseq}. From \(
-X'_0 \) to \( X'_1 \) goes through \( Y'_0 \), so the iteration sequence
-is \( X'_0 \to Y'_1 \to X'_1 \) and \( X'_0 \to X'_1 \) is a two-stage
-Markov chain, with transition probability
+\( X' \) sequence from~\eqref{gibbssampler:eq:gibbsseq}.  From \( X'_0 \)
+to \( X'_1 \) goes through \( Y'_0 \), so the iteration sequence is \(
+X'_0 \to Y'_1 \to X'_1 \) and \( X'_0 \to X'_1 \) is a two-stage Markov
+chain, with transition probability
 \[
     \Prob{X'_1 \given X'_0} = \sum\limits_y \Prob{X'_1 \given Y'_1 = y}
     \times \Prob{Y'_1 = y \given X'_0}.
@@ -253,44 +334,43 @@ the right matrix multiplication of \( A_{y \given x} \) by \( A_{x
 \[
     A_{x \given x} = A_{ y \given x } A_{x \given y}
 \] is the transition probability matrix for the \( X' \) sequence.  The
-matrix that gives \( \Prob{X'_k = x_k \given X'_0 = x_0} \) is \( (A_{x
-\given x})^k \).  Letting \( f_k = (f_k(0), f_k(1)) \) denote the
-marginal probability distribution of \( X'_k \) then \( f_k = f_0 A^k_{x
-\given x} = f_0 (A^{k-1}_{x \given x}) A_{x \given x} = f_{k-1} A_{x
-\given x} \).  By the Fundamental Theorem for Markov Chains, \( f_k \to
-f \) as \( k \to \infty \) with stationary distribution \( f \)
+matrix that gives \( \Prob{X'_n = x_n \given X'_0 = x_0} \) is \( (A_{x
+\given x})^n \).  Letting \( f_n = (f_n(0), f_n(1)) \) denote the
+marginal probability distribution of \( X'_n \) then \( f_n = f_0 A^n_{x
+\given x} = f_0 (A^{n-1}_{x \given x}) A_{x \given x} = f_{n-1} A_{x
+\given x} \).  By the Fundamental Theorem for Markov Chains, \( f_n \to
+f \) as \( n \to \infty \) with stationary distribution \( f \)
 satisfying \( f A_{x \given x} = f \).  If the Gibbs sequence converges,
 the \( f \) satisfying \( f A_{x \given x} = f \) must be the marginal
 distribution of \( X \).  In this small example, it is straightforward
 to check that \( f_X = ( p_1 + p_3, p_2 + p_4) \) satisfies \( f_X A_{x
-\given x} = f_X \). So stopping the iteration scheme at a large enough
-value of \( k \) gives approximately \( f_X \).  The larger the value of
-\( k \), the better the approximation.  No general guidance on choosing
-such \( k \) is available.  However, one possible approach is to monitor
+\given x} = f_X \).  So stopping the iteration scheme at a large enough
+value of \( n \) gives approximately \( f_X \).  The larger the value of
+\( n \), the better the approximation.  No general guidance on choosing
+such \( n \) is available.  However, one possible approach is to monitor
 density estimates from \( m \) independent Gibbs sequences, and choosing
 the first point at which these densities agree to a satisfactory degree.
 
-The algebra for the \( 2 \times 2 \) case immediately works for any \( n
-\times m \) joint distribution of \( X \)'s and \( Y \)'s.  Analogously
-define the \( n \times n \) transition matrix \( A_{X \given X} \) whose
-stationary distribution will be the marginal distribution of \( X \). If
-either (or both) of \( X \) and \( Y \) are continuous, then the finite
-dimensional arguments will not work.  However, with suitable
+The algebra for the \( 2 \times 2 \) case works for any \( n \times m \)
+joint distribution of \( X \)'s and \( Y \)'s.  Analogously define the \(
+n \times n \) transition matrix \( A_{X \given X} \) whose stationary
+distribution will be the marginal distribution of \( X \).  If either (or
+both) of \( X \) and \( Y \) are continuous, then with suitable
 assumptions, all of the theory still goes through, so the Gibbs sampler
 still produces a sample from the marginal distribution of \( X \).  The
 conditional density of \( X_1 \) given \( X_0 \) is \( f_{x_1 \given x_0}
 (x_1 \given x_0) = \int f_{X_1 \given Y_1}(x_1 \given y)f_{Y_1 \given X_0}
 (y \given x_0) \df{y} \).  Then, step by step, write the conditional
 densities of \( X'_2 \given X'_0 \), \( X'_3 \given X'_0 \), \( X'_4
-\given X'_0 \), \dots.  Similar to the \( k \)-step transition matrix \(
-(A_{x \given x})^k \), derive an ``continuous transition probability
+\given X'_0 \), \dots.  Similar to the \( n \)-step transition matrix \(
+(A_{x \given x})^n \), derive an ``continuous transition probability
 matrix'' with entries satisfying the relationship
 \[
-    f_{X'_k \given X'_0}(x \given x_0 ) = \int f_{X'_k \given X'_{k-1}}
-    (X \given t) f_{X'_{k-1} \given X'_{0}}(t \given x_0) \df{t},
-\] the continuous version of the right matrix multiplication.  As \( k
+    f_{X'_n \given X'_0}(x \given x_0 ) = \int f_{X'_n \given X'_{n-1}}
+    (X \given t) f_{X'_{n-1} \given X'_{0}}(t \given x_0) \df{t},
+\] the continuous version of the right matrix multiplication.  As \( n
 \to \infty \) it again follows that the stationary distribution is the
-marginal density of \( X \), the density to which \( f_{X'_k \given X'_0}
+marginal density of \( X \), the density to which \( f_{X'_n \given X'_0}
 \), converges.
 
 \subsection*{Gibbs Sampling from the Bivariate Normal}
@@ -315,15 +395,13 @@ are in fact
 \] Another standard exercise is to show the conditional probability
 densities are
 \[
-    f_{x \given y}(x) = \frac{1}{\sqrt{2\pi (1-\rho^2)}}
-    \EulerE^{-(x-\rho y)^2/
-    (2(1-\rho^2))}
+    f_{x \given y}(x) = \frac{1}{\sqrt{2\pi (1-\rho^2)}} \EulerE^{-(x-\rho
+    y)^2/ (2(1-\rho^2))}
 \] and
 \[
-    f_{y \given x}(y) = \frac{1}{\sqrt{2\pi (1-\rho^2)}}
-    \EulerE^{-(y-\rho x)^2/
-    (2(1-\rho^2))}.
-\] That is, \( X_i \given X_j \sim N(x_j, (1-\rho^2)) \). Figure~%
+    f_{y \given x}(y) = \frac{1}{\sqrt{2\pi (1-\rho^2)}} \EulerE^{-(y-\rho
+    x)^2/ (2(1-\rho^2))}.
+\] That is, \( X_i \given X_j \sim N(x_j, (1-\rho^2)) \).  Figure~%
 \ref{fig:gibbssampler:bivarnorm} illustrates the bivariate normal
 density with \( \rho = 0.8 \).  The scaling of the \( z \)-axis is
 approximately equal to the \( x \) and \( y \) axes, so that the density
@@ -332,81 +410,80 @@ densities are projected onto coordinate planes at \( x = 2 \) and \( y =
 2 \).
 
 \begin{figure}
-  \centering
-  \includegraphics{bvn}
-  \begin{comment}
+    \centering
+    \includegraphics{bvn}
+%     \begin{comment}
 
-    Note that there is a bug in the gs exporter that makes using the
-    graph3 axes not work.
-    See
-    https://sourceforge.net/p/asymptote/discussion/409349/thread/a52414e613/
-    After the bug gets fixed, the following should work.
-\begin{asy}
-settings.outformat = "pdf";
-settings.prc=false;
-settings.render=0;
+%         Note that there is a bug in the gs exporter that makes using the
+%         graph3 axes not work. See
+%         https://sourceforge.net/p/asymptote/discussion/409349/thread/a52414e613/
+%         After the bug gets fixed, the following should work.
+% \begin{asy}
+% settings.outformat = "pdf";
+% settings.prc=false;
+% settings.render=0;
 
-import graph3;
-import contour;
-import grid3;
-import palette;
+% import graph3;
+% import contour;
+% import grid3;
+% import palette;
 
-size(5inches);
+% size(5inches);
 
-real myfontsize = 12;
-real mylineskip = 1.2*myfontsize;
-pen mypen = fontsize(myfontsize, mylineskip);
-defaultpen(mypen);
+% real myfontsize = 12;
+% real mylineskip = 1.2*myfontsize;
+% pen mypen = fontsize(myfontsize, mylineskip);
+% defaultpen(mypen);
 
-currentprojection=orthographic(-4,-4,2);
-limits((-2,-2,0),(2,2,0.5));
+% currentprojection=orthographic(-4,-4,2);
+% limits((-2,-2,0),(2,2,0.5));
 
-real rho = 0.8;
+% real rho = 0.8;
 
-real id( real t) { return t;}
-real n( real t) { return  (1/(sqrt(2 * pi))) * exp( -t^2 / 2); }
-real two( real t) {return 2;}
+% real id( real t) { return t;}
+% real n( real t) { return  (1/(sqrt(2 * pi))) * exp( -t^2 / 2); }
+% real two( real t) {return 2;}
 
-path3 margx = graph(id, two, n, -2, 2, operator ..);
-draw( margx, red);
-path3 margy = graph(two, id, n, -2, 2, operator ..);
-draw( margy, red);
+% path3 margx = graph(id, two, n, -2, 2, operator ..);
+% draw( margx, red);
+% path3 margy = graph(two, id, n, -2, 2, operator ..);
+% draw( margy, red);
 
-real f(pair z) {
-    real rho = 0.8;
-  return (1/(2 * pi * sqrt(1 - rho^2))) *
-    exp( -(z.x^2 - 2 * rho * z.x * z.y +  z.y^2) / 2);
-}
+% real f(pair z) {
+%     real rho = 0.8;
+%   return (1/(2 * pi * sqrt(1 - rho^2))) *
+%     exp( -(z.x^2 - 2 * rho * z.x * z.y +  z.y^2) / 2);
+% }
 
-surface s=surface(f,(-2,-2),(2,2),20,Spline);
+% surface s=surface(f,(-2,-2),(2,2),20,Spline);
 
-pen[] Palette=Grayscale();
-draw(s,surfacepen=mean(palette(s.map(zpart),Palette))
-      ,meshpen=black,nolight);
+% pen[] Palette=Grayscale();
+% draw(s,surfacepen=mean(palette(s.map(zpart),Palette))
+%       ,meshpen=black,nolight);
 
-grid3(new grid3routines [] {XYXgrid, ZXZgrid(2), ZYZgrid(2)},
-      Step=0.25,
-      pGrid=new pen[] {red, blue, black},
-      pgrid=new pen[] {0.5red, lightgray, lightgray});
+% grid3(new grid3routines [] {XYXgrid, ZXZgrid(2), ZYZgrid(2)},
+%       Step=0.25,
+%       pGrid=new pen[] {red, blue, black},
+%       pgrid=new pen[] {0.5red, lightgray, lightgray});
 
-xaxis3(  Label("$x$",position=MidPoint,align=SE),
- Bounds(Min,Min),
- OutTicks());
- yaxis3( Label("$y$",position=MidPoint,align=SW),
- Bounds(Min,Min),
- OutTicks());
-zaxis3( Label("$z$",position=EndPoint, align=Z),
-  Bounds(Min,Max),
-  InTicks(beginlabel=false,endlabel=true,Label(align=Y)),
-  arrow=Arrow3
-  );
-zaxis3( Label("$z$",position=EndPoint, align=Z),
-  Bounds(Max,Min),
-  InTicks(beginlabel=false,endlabel=true,Label(align=X)),
-  arrow=Arrow3
-  );
-\end{asy}
-\end{comment}
+% xaxis3(  Label("$x$",position=MidPoint,align=SE),
+%  Bounds(Min,Min),
+%  OutTicks());
+%  yaxis3( Label("$y$",position=MidPoint,align=SW),
+%  Bounds(Min,Min),
+%  OutTicks());
+% zaxis3( Label("$z$",position=EndPoint, align=Z),
+%   Bounds(Min,Max),
+%   InTicks(beginlabel=false,endlabel=true,Label(align=Y)),
+%   arrow=Arrow3
+%   );
+% zaxis3( Label("$z$",position=EndPoint, align=Z),
+%   Bounds(Max,Min),
+%   InTicks(beginlabel=false,endlabel=true,Label(align=X)),
+%   arrow=Arrow3
+%   );
+% \end{asy}
+%    \end{comment}
     \caption{Bivariate normal probability density with marginals.}%
     \label{fig:gibbssampler:bivarnorm}
 \end{figure}
@@ -415,12 +492,12 @@ Because the marginals are known, using the Gibbs sampler is not
 necessary to simulate them.  However, Gibbs sampling using this
 elementary example is illustrative as in Figure~%
 \ref{fig:gibbsampler:bivarsampler}.  Apply the algorithm for \( 1000 \)
-steps and to allow for convergence to the stationary distribution, the
+steps.  To allow for convergence to the stationary distribution, the
 first \( 500 \) steps are discarded, using only the last \( 500 \)
 steps.  The first two subgraphs show the frequencies of the sampled
-marginal distributions, along with the theoretical densities in red.
-The correspondence is appears close.  Better than a visual comparison of
-the densities is to use a Q-Q plot comparing the sample quantiles to the
+marginal distributions, along with the theoretical densities in red. The
+correspondence is appears close.  Better than a visual comparison of the
+densities is to use a Q-Q plot comparing the sample quantiles to the
 quantiles of the standard normal distribution.  The straight line
 correspondence of the quantiles over several standard deviations
 demonstrates the excellent match of simulation to the theoretical
@@ -440,9 +517,9 @@ produced a satisfactory sample of the marginal distributions.
     \label{fig:gibbsampler:bivarsampler}
 \end{figure}
 
-\subsection*{A Gibbs sampler for a Spam Filter}
+\subsection*{A Gibbs Sampler for a Spam Filter}
 
-Consider a Bayesian Inference model for an email spam filter. The goal
+Consider a Bayesian Inference model for an email spam filter.%\index{spam filter} The goal
 is to estimate the prevalence \( \psi \) of email spam without having to
 directly count the instances of email spam.  The model has the following
 random variables and events:
@@ -455,28 +532,29 @@ random variables and events:
         \( [S=0] \), the event that the email is \emph{not} spam, a
         negative outcome with \( \Prob{S = 0} = 1 - \psi \),
     \item
-        \( [R=1] \), the event that a spam email is correctly marked spam,
-        a \emph{true positive}
+        \( [R=1] \), the event that a spam email is correctly marked
+        spam, a \emph{true positive},
     \item
-        \( [R=0] \), the event that a non=spam email is \emph{incorrectly}
+        \( [R=0] \), the event that a nonspam email is \emph{incorrectly}
         marked spam, a \emph{false negative}.
 \end{itemize}
 Then define the following parameters:
 \begin{itemize}
     \item
-        \emph{sensitivity} \( \eta = \Prob{R = 1 \given S =1} = 0.90 \) (so
-        the false positive rate is \( \alpha = 0.10 \)),
+        \emph{sensitivity}%\index{sensitivity} \( \eta = \Prob{R = 1 \given S =1} = 0.90 \) (so
+        the false positive rate is \( \Prob{R = 0 \given S =1} = 0.10 \)),
     \item
-        \emph{specificity} \( \theta = \Prob{R = 0 \given S = 0} = 0.95 \)
-        (so the false negative rate is \( \beta = 0.05 \)),
+        \emph{specificity}%\index{specificity} \( \theta = \Prob{R = 0 \given S = 0} = 0.95 \)
+        (so the false negative rate is \( \Prob{R = 1 \given S = 0} =
+        0.05 \)),
     \item
-        \emph{prevalence} \( \psi = \Prob{S = 1} \).
+        \emph{prevalence}%\index{prevalence} \( \psi = \Prob{S = 1} \).
 \end{itemize}
 Then
 \begin{align*}
-    \tau = \Prob{R = 1} &= \Prob{R = 1 \given S =1} \Prob{S = 1} + \Prob{R
-                          = 1 \given S =0} \Prob{S = 0} \\
-                        &= \psi \eta + (1 - \psi)(1-\theta).
+    \tau = \Prob{R = 1} &= \Prob{R = 1 \given S =1} \Prob{S = 1} + \Prob
+    {R = 1 \given S =0} \Prob{S = 0} \\
+    &= \psi \eta + (1 - \psi)(1-\theta).
 \end{align*}
 
 Rewrite the equation to solve for the prevalence \( \psi \), usually the
@@ -484,20 +562,21 @@ parameter of interest:
 \[
     \psi = \frac{\tau + \theta - 1}{\eta + \theta -1}.
 \] Assume as an example, that the filter marks \( r = 233 \) emails as
-spam out of a total of \( n = 1000 \) emails.  Then the rate of
-rejection \( \tau = r/n = 0.233 \).  Likewise the estimate of prevalence
-is \( \psi = 0.21529 \). Since this is a Bernoulli random variable, the
-traditional frequentist confidence interval is \( \tau \pm 1.96 \sqrt{\tau
-(1-\tau)/n} \) which becomes \( [0.20680, 0.25920] \).  Using these in
-the equation for the prevalence \( \psi \) given an interval \( \psi \in
-[0.184, 0.246] \).
+spam out of a total of \( n = 1000 \) emails.  Then the empirical rate
+of rejection \( \hat{\tau} = r/n = 0.233 \).  From the relation for the
+prevalence \( \psi \) in terms of the other parameters the empirical
+estimate of prevalence is \( \hat{\psi} = 0.21529 \).  Since this is a
+Bernoulli random variable, the traditional frequentist confidence
+interval is \( \tau \pm 1.96 \sqrt{\tau (1-\tau)/n} \) which becomes \(
+[0.20680, 0.25920] \).  Using these in the relation for the prevalence \(
+\psi \) given an interval \( \psi \in [0.184, 0.246] \).
 
-Unfortunately, if \( n \) is relatively small, this can give nonsensical
-estimates.  For example, \( \eta = 0.99 \), \( \theta = 0.97 \), \( r =
-5 \) from \( n = 250 \) gives \( \tau = 0.02 \) but \( \psi = -0.01042 \).
+Unfortunately, if \( r \) is relatively small compared to \( n \), the
+relation can give nonsensical estimates.  For example, \( \eta = 0.99 \),
+\( \theta = 0.97 \), \( r = 5 \) from \( n = 250 \) gives \( \tau = 0.02
+\) but \( \psi = -0.01042 \).
 
-Before starting the Gibbs sampling, first use simple
-Bayesian inference%
+Before starting the Gibbs sampling, first use simple Bayesian inference%
 \index{Bayesian inference}
 starting from Bayes' Formula%
 \index{Bayes' Formula}
@@ -506,40 +585,37 @@ starting from Bayes' Formula%
 \] or in probability notation
 \[
     \Prob{\tau \given r} \propto \Prob{\tau} \cdot \Prob{r \given \tau}.
-\] Start with a non-informative prior where \( \tau \) is uniformly
-distributed on \( (0,1) \), but use a Beta density
+\] Start with a noninformative prior where \( \tau \) is uniformly
+distributed on \( (0,1) \), but use a Beta density%
+\index{Beta density}
 \[
     \Prob{\tau = x} = \frac{1}{B(\alpha, \beta)} x^{\alpha-1}(1-x)^{\beta-1}
 \] with initial shape parameters \( \alpha = 1 \) and \( \beta = 1 \) so
 the density is uniform.  Recall that \( \Prob{r \given \tau} \) is
 binomial, so
 \begin{align*}
-    \Prob{\tau \given r} &\propto \tau^{a_0 - 1}(1-\tau)^{\beta_0 - 1}
-    \times \tau^r (1 - \tau)^{n-r} \\
-    &\propto \tau^{\alpha_0 + r -1} (1-\tau)^{\beta_0 + n - r -1} \\
+    \Prob{\tau \given r} &\propto \left( \tau^{\alpha_0 - 1}(1-\tau)^{\beta_0
+    - 1} \right) \times \left( \tau^r (1 - \tau)^{n-r} \right) \\
+    &\propto \tau^{\alpha_0 + r -1} (1-\tau)^{\beta_0 + n - r -1}.
 \end{align*}
-The right side is essentially the form of the Beta distribution \(
-\operatorname{Beta}
-(\alpha_n, \beta_n) \).  This functional correspondence between the Beta
-families for the prior and the posterior and the Binomials for the
-likelihood makes them a \defn{conjugate pair}.%
+The right side is again the form of the Beta distribution. This
+correspondence between the Beta families for the prior and the posterior
+and the Binomials for the likelihood makes them a \defn{conjugate pair}.%
 \index{conjugate pair}%
-.  The mean of the Beta distribution with shape parameters \( \alpha \)
-and \( \beta \) is \( \alpha/(\alpha + \beta) \) and the variance is \(
+The mean of the Beta distribution with shape parameters \( \alpha \) and
+\( \beta \) is \( \alpha/(\alpha + \beta) \) and the variance is \(
 \alpha \beta/((\alpha + \beta)^2(\alpha + \beta + 1)) \).
 
-For the spam classification problem
+For the spam classification problem with the previous data
 \begin{align*}
-    \alpha_n &= \alpha_0 + r = 1 + 233 = 234 \\
-    \beta_n &= \beta_0 + n -r = 1 + 1000 - 233 = 768.
+    \alpha &= \alpha_0 + r = 1 + 233 = 234 \\
+    \beta &= \beta_0 + n -r = 1 + 1000 - 233 = 768.
 \end{align*}
 This allows using the resulting Beta density posterior for \( p(\tau
 \given r) \) to derive the mean and confidence interval for \( \tau \).
 Using the facts about the mean and variance above, the posterior density
 mean is \( \alpha/(\alpha + \beta) = 0.23353 \).  The \( 95\% \)
-confidence interval using the Beta cdf \(
-\operatorname{Beta}
-(p, \alpha, \beta) \) defined by \(
+confidence interval using the Beta cdf defined by \(
 \operatorname{Beta}
 (p_{-}, \alpha_0, \beta_0) = 0.025 \) and \(
 \operatorname{Beta}
@@ -549,7 +625,7 @@ is approximately the same as the frequentist confidence interval.
 Next use a Gibbs sampler to get point and interval estimates for \( \psi
 \).  Unlike the estimate for \( \tau \) where the count \( r \) of the
 spam-marked emails is available, a Gibbs sampler is useful because it is
-not feasible to directly count the spam emails.  Again using Bayes
+not feasible to directly count the spam emails.  Again using Bayes'
 Formula
 \begin{multline*}
     p = \Prob{S=1 \given R = 1} = \Prob{S=1, R = 1}/\Prob{R = 1} = \\
@@ -571,7 +647,7 @@ and
     (\alpha_n, \beta_n) \\
 \end{align*}
 where \( V = X + Y \), \( \alpha_n = \alpha_0 + V \) and \( \beta_n = n
-- V \). Use one value of \( \psi \) to find the next in the typical
+- V \).  Use one value of \( \psi \) to find the next in the typical
 Gibbs iteration.  This is in effect a Markov Chain for which the
 limiting distribution is the posterior of \( \psi \).  At each
 iteration, use the prior distribution and the data.  The continued and
@@ -591,14 +667,14 @@ Sampler method.
 
 Suppose \( f(x_1, x_2, \dots, x_N) \) is a joint probability density in
 which the variables represent parameters of a statistical model.  The
-goal is to get point and interval estimates for these parameters. To fit
-this into the Gibbs sampling framework, assume that all the
+goal is to get point and interval estimates for these parameters.  To
+fit this into the Gibbs sampling framework, assume that all the
 single-variable conditional probability densities
 \[
     f(x_i \given x_j, j \ne i)
 \] are available, that is, are a type for which samples can be obtained
-using standard algorithms.  Examples of available densities include
-the uniform, the normal, the gamma, the Poisson, and any finite
+using standard algorithms.  Examples of available densities include the
+uniform, the normal, the gamma, the Poisson, and any finite
 distribution.  To generate a sequence of samples, select \(
 \overrightarrow{x}^0 = (x_1^0, x_2^0, \dots, x_N^0) \) arbitrarily and
 then create \( \overrightarrow{x}^1 = (x_1^1, x_2^1, \dots, x_N^1) \) as
@@ -619,17 +695,18 @@ follows:
         Generate a sample \( x_N^1 \) from \( f(x_N \given x_1^1, x_2^1,
         \dots x_{N-1}^1) \).
 \end{enumerate}
-One cycle, similar to a raster scan of an image, produces a new value \(
-\overrightarrow{x}^1 \).  Repeating this process \( M \) times produces
+One cycle, similar to a sweep of the lattice in the Ising model or a
+raster scan of an image, produces a new value \( \overrightarrow{x}^1 \).
+Repeating this process \( M \) times produces
 \[
     \overrightarrow{x}^0, \overrightarrow{x}^1, \overrightarrow{x}^2,
     \dots, \overrightarrow{x}^M
-\] which approximates a sample from the probability density \(
-f(x_1, x_2, \dots, x_N) \).
+\] which approximates a sample from the probability density \( f(x_1, x_2,
+\dots, x_N) \).
 
-Using this sample, almost any property of the probability density
-can be investigated.  For example, focusing on only the first component
-of each \( \overrightarrow{x}^k \) produces a sample
+Using this sample, almost any property of the probability density can be
+investigated.  For example, focusing on only the first component of each
+\( \overrightarrow{x}^k \) produces a sample
 \[
     x_1^0, x_1^1, x_1^2,\dots, x_1^M
 \] from the marginal probability distribution of the first component,
@@ -652,7 +729,7 @@ As another example of the Gibbs sampler, suppose that \( X \sim N(\mu,
 1/\tau) \) with \( \mu \) and \( \tau \) unknown.  Based on a reasonably
 sized sample, the goal is to get the posterior distributions of \( \mu \)
 and \( \tau \) using the Gibbs sampler.  Here \( \mu \) is the
-population mean, and \( \tau \), called the population precision, is the
+population mean, and \( \tau \), called the \emph{population precision},%\index{population precision} is the
 reciprocal of the variance, \( n \) is the sample size, \( \bar{x} \) is
 the sample mean and \( s^2 = \frac{1}{n-1} \sum\limits_{i=1}^n (x_i -
 \bar{x})^2 \) is the sample variance.  Then make a sequence of
@@ -660,26 +737,26 @@ iterations \( i = 1, \dots N \); with a sample \( \mu^{(i)} \) from \( f
 (\mu \given \tau^{(i-1)}, \text{data}) \) (see below for the definition)
 and sample \( \tau^{(i)} \) from \( f(\tau \given \mu^{(i-1)}, \text{data})
 \) (see below for the definition).  Then the theory behind Gibbs
-sampling ensures that after a sufficiently large number of iterations, \(
-T \), the set \( \setof{(\mu^{(i)}, \tau^{(i)})}{i = T+1, \dots, N} \)
-can be seen as a random sample from the joint posterior distribution.
-The priors are that \( f(\mu, \tau) = f(\mu) \times f(\tau) \) with \( f
-(\mu) \propto 1 \) and \( f(\tau) \propto 1/\tau \).  With these
-definitions and assumptions standard theory shows the sample mean from a
-normal distribution given the population precision has a conditional
+sampling ensures that after a sufficiently many iterations, \( T \), the
+set \( \setof{(\mu^{(i)}, \tau^{(i)})}{i = T+1, \dots, N} \) can be seen
+as a random sample from the joint posterior distribution. The priors are
+that \( f(\mu, \tau) = f_{\mu}(\mu) \times f_{\tau}(\tau) \) with \( f_{\mu}
+(\mu) \propto 1 \) and \( f_{\tau}(\tau) \propto 1/\tau \).  With these
+definitions and assumptions, standard theory shows the sample mean from
+a normal distribution given the population precision has a conditional
 posterior distribution
 \[
-    (\mu \given \tau, \text{data}) \sim N\left(\bar{x}, \frac{1}
-    {n \tau} \right).
+    (\mu \given \tau, \text{data}) \sim N\left(\bar{x}, \frac{1} {n \tau}
+    \right).
 \]
 
-Also from standard theory, the precision, (the reciprocal of the
-variance) given the mean has a conditional posterior distribution
+Next, the claim is that the precision, (the reciprocal of the variance)
+given the mean has a conditional posterior distribution
 \[
     (\tau \given \mu, \text{data}) \sim
     \operatorname{Gamma}
     \left( \frac{n}{2}, \frac{2}{(n-1) s^2 + n (\mu - \bar{x})^2} \right).
-\] The derivation goes like this:
+\] The derivation of the claim is:
 \[
     \text{ Posterior} \propto \text{ Prior } \times \text{ Likelihood }
 \] or in probability notation
@@ -689,38 +766,38 @@ variance) given the mean has a conditional posterior distribution
 \] Then using \( \frac{1}{\sigma^n} = \tau^{n/2} \)
 \begin{align*}
     p(\tau \given \mu, \text{data} ) &\propto \tau^{-1} \times \tau^{n/2}
-    \exp \left( -\frac{\tau}{2} \sum\limits_{i=1}^n (x_i - \bar{x})^2
+    \exp \left( -\frac{\tau}{2} \sum\limits_{\nu=1}^n (x_\nu - \bar{x})^2
     \right) \\
     & \propto \tau^{-1} \times \tau^{n/2} \exp \left( -\frac{\tau}{2}
-    \sum\limits_{i=1}^n (x_i - \mu + \mu - \bar{x})^2 \right) \\
+    \sum\limits_{\nu=1}^n (x_\nu - \mu + \mu - \bar{x})^2 \right) \\
     & \propto \tau^{-1} \times \tau^{n/2} \exp \left( -\frac{\tau}{2}
-      \left[ \sum\limits_{i=1}^n (x_i - \mu)^2 \right. \right. \\
-    & \qquad \left. \left. +2 \sum\limits_{i=1}^n (x_i
-    - \mu)(\mu - \bar{x}) + \sum\limits_{i=1}^n (\mu - \bar{x})^2 \right]
-    \right) \\
+    \left[ \sum\limits_{\nu=1}^n (x_\nu - \mu)^2 \right.  \right.  \\
+    & \qquad \left.  \left.  +2 \sum\limits_{\nu=1}^n (x_\nu - \mu)(\mu
+    - \bar{x}) + \sum\limits_{\nu=1}^n (\mu - \bar{x})^2 \right] \right)
+    \\
     & \propto \tau^{-1} \times \tau^{n/2} \exp \left( -\frac{\tau}{2}
-    \left[ \sum\limits_{i=1}^n (x_i - \mu)^2 + \sum\limits_{i=1}^n (\mu
-    - \bar{x})^2 \right] \right) \\
+    \left[ \sum\limits_{\nu=1}^n (x_\nu - \mu)^2 + \sum\limits_{\nu=1}^n
+    (\mu - \bar{x})^2 \right] \right) \\
     & \propto \tau^{n/2-1} \times \exp \left( -\frac{\tau}{2} \left[(n-1)
-    s^2 + n(\mu - \bar{x})^2 \right] \right) \\
+    s^2 + n(\mu - \bar{x})^2 \right] \right).
 \end{align*}
-The last
-expression is now recognizable as a Gamma distribution with shape
-parameter \( \frac{n}{2} \) and rate (inverse scale parameter) \(
-(n-1) s^2 + n(\mu - \bar{x})^2 \). Having this distribution is
+The last expression is now recognizable as a Gamma distribution%
+\index{Gamma distribution}
+with shape parameter \( \frac{n}{2} \) and rate (inverse scale parameter)
+\( (n-1) s^2 + n(\mu - \bar{x})^2 \).  Having this distribution is
 convenient for implementing the Gibbs sampler.  (As a side remark, in
-some derivations for Bayesian statistics, the prior for \( \tau
-\) is taken to be \(
+some derivations for Bayesian statistics, the prior for \( \tau \) is
+taken to be \(
 \operatorname{Gamma}
 (\alpha, \beta) \) which leads to a similar looking Gamma posterior
 including the additional parameters \( \alpha \) and \( \beta \), but
 for Gibbs sampling, this is unnecessary because the theory shows that
-the sampling will converge even with the simpler choice.) 
+the sampling will converge even with the simpler choice.)
 
 The R script below implements the Gibbs sampler for these parameters,
 with \( n = 30 \), a typical value, and postulating \( \bar{x} = 15 \),
 and \( s^2 = 3 \).  The number of iterations is \( N = 11{,}000 \) with
-a transient period of \( 1000 \) iterations. Figure~%
+a transient period of \( 1000 \) iterations.  Figure~%
 \ref{fig:gibbsampler:normalparam} shows the results of the of Gibbs
 sampler for the parameters of a normal distribution.
 
@@ -776,100 +853,106 @@ case of discrete distributions) are over all values \( \lambda \) and \(
 However, as before, the Metropolis-Hastings algorithm avoids this
 expression.
 
-As a specific example, consider a model of water pump failure rates.
-The data, \( X \), are given by pairs \( (s_i, t_i) \) for \( i = 1,2,
-\dots, 10 \).  Each pair represents failure information for an
-individual pump.  For each pump, assume the number of failures \( s_i \)
-in time \( t_i \) is given by a Poisson distribution with parameter \(
-\lambda_i t_i \), that is
+As a specific example, consider a model of water pump failure rates. The
+data, \( X \), are given by pairs \( (s_i, t_i) \) for \( i = 1,2, \dots,
+10 \).  Each pair represents failure information for an individual pump.
+For each pump, assume the number of failures \( s_i \) in time \( t_i \)
+is given by a Poisson distribution with parameter \( \lambda_i t_i \),
+that is
 \[
     f_i(s_i \given \lambda_i) = \frac{(\lambda_i t_i)^{s_i} \EulerE^{-\lambda_i
     t_i}}{s_i!}, \quad i = 1,2, \dots, 10.
 \]
 
-Assuming the failures occur independently, the product gives the
-likelihood function for \( \overrightarrow{\lambda} = (\lambda_1,
-\lambda_2, \dots, \lambda_{10}) \):
+Assuming the failures occur independently, the likelihood function for \(
+\overrightarrow{\lambda} = (\lambda_1, \lambda_2, \dots, \lambda_{10}) \)
+is the product:
 \[
     f(X \given \overrightarrow{\lambda}) = \prod\limits_{i=1}^{10} \frac
     {(\lambda_i t_i)^{s_i} \EulerE^{-\lambda_i t_i}}{s_i!}.
-\] The traditional frequentist approach is to use \( \bar{\lambda_i} = S_i/t_i
+\] The traditional frequentist approach is to use \( \bar{\lambda_i} = s_i/t_i
 \) as the point estimate of \( \lambda_i \) for \( i = 1,2, \dots, 10 \).
 The Bayesian approach is to assume that the individual \( \lambda_i \)'s
 are linked together by a common distribution.  A natural choice is a
-gamma distribution with parameters \( \alpha \) and \( \beta \), so that
-the density for the \( i \)th parameter is
+gamma distribution with shape parameter \( \alpha \) and scale parameter
+\( \beta \), so that the density for the \( i \)th parameter is
 \[
-    g_i(\lambda_i \given \alpha, \beta) =\prod\limits_{i=1}^{10} \frac{\lambda_i^
-    {\alpha-1} \EulerE^{-\lambda_i/\beta}}{\beta^{\alpha} \Gamma(\alpha)}.
+    g_i(\lambda_i \given \alpha, \beta) = \frac{\lambda_i^ {\alpha-1}
+    \EulerE^{-\lambda_i/\beta}}{\beta^{\alpha} \Gamma(\alpha)}.
 \] The remaining hyper-parameter \( \beta \) is described by an inverse
-gamma distribution with parameters \( \gamma \) and \( \delta \), so
+gamma distribution%
+\index{inverse gamma distribution}
+with shape parameter \( \gamma \) and scale parameter \( \delta \), so
 that
 \[
     h(\beta) = \frac{\delta^{\gamma} \EulerE^{-\delta/\beta}}{\beta^{\gamma+1}
     \Gamma(\gamma)}.
 \] The parameters \( \gamma \) and \( \delta \) are selected to make the
 top-level inverse gamma reasonably \emph{diffuse}.  A diffuse
-distribution tries to convey as little prior information as possible
-about the parameters.  As an extreme case of a non-informative
-distribution is the uniform distribution on the parameter space.
+distribution%
+\index{diffuse distribution}
+tries to convey as little prior information as possible about the
+parameters.  An extreme case of a noninformative distribution is the
+uniform distribution on the parameter space.
 
 The resulting posterior joint density for the parameters \( \lambda_1,
 \lambda_2, \dots, \lambda_{10} \) along with the scale parameter \(
 \beta \) is
 \begin{multline*}
-    F(\lambda_1, \lambda_2, \dots, \lambda_{10}, \beta \given X)
-    \propto \\
+    F(\lambda_1, \lambda_2, \dots, \lambda_{10}, \beta \given X) \propto
+    \\
     \left[ \prod_{i=1}^{10} \frac{(\lambda_i t_i)^{s_i} \EulerE^{-\lambda_i
     t_i}}{s_i!} \right] \left[ \prod_{i=1}^{10} \frac{\lambda_i^{\alpha-1}
     \EulerE^{-\lambda_i/\beta}}{\beta^{\alpha} \Gamma(\alpha)} \right]
     \left[ \frac{\delta^{\gamma} \EulerE^{-\delta/\beta}}{\beta^{\gamma+1}
     \Gamma(\gamma)} \right].
-\end{multline*} For \( i = 1,2, \dots, 10 \), the density for \( \lambda_i \)
+\end{multline*}
+For \( i = 1,2, \dots, 10 \), the density for \( \lambda_i \)
 conditioned on the other parameters is proportional to
 \[
     \lambda_i^{s_i + \alpha -1} \EulerE^{-\lambda_i (t_i+1/\beta)}.
 \] The constant of proportionality is obtained by absorbing all factors
 independent of \( \lambda_i \).  The form of the density for \( \lambda_i
 \) shows that \( \Prob{\lambda_i \given \lambda_j, j \ne i, X, \beta} \)
-is a gamma distribution with parameters \( s_i + \alpha -1 \) and \( 1/(t_i
-+ 1/\beta) \).  Since the gamma distribution is available, Gibbs
-sampling can be applied at this step.  The density for \( \beta \),
-conditioned on the other parameters, is proportional to
+is a gamma distribution with shape parameter \( s_i + \alpha \) and
+scale parameter \( 1/(t_i + 1/\beta) \).  Since the gamma distribution
+is available, Gibbs sampling can be applied at this step.  The density
+for \( \beta \), conditioned on the other parameters, is proportional to
 \[
-    \frac{\EulerE^{-({\sum_{i=1}^{10}\lambda_i + \delta})\beta}}{\beta^{10\alpha+\gamma+1}}
+    \frac{\EulerE^{-({\sum_{i=1}^{10}\lambda_i + \delta})/\beta}}{\beta^
+    {10\alpha+\gamma+1}}
 \] showing that \( \Prob{\beta \given \lambda_1, \lambda_2, \dots,
-\lambda_{10}, X} \) is an inverse gamma distribution with parameters \(
-\gamma + 10 \alpha \) and \( \sum\limits_{i=1}^{10} \lambda_i+\delta \).
-This too is an available distribution.
+\lambda_{10}, X} \) is an inverse gamma distribution with shape
+parameter \( \gamma + 10 \alpha \) and \( \sum\limits_{i=1}^{10} \lambda_i+\delta
+\). This too is an available distribution.
 
-This model is an example of a \emph{conjugate hierarchical model}, that
-is, one whose intermediate distributions, in this case, those for the \(
-\lambda_i \) and \( \beta \) are similar to the original distributions
-in the hierarchical model.  This fits with the Gibbs sampling
-requirement that these distributions be available.
+This model is an example of a \emph{conjugate hierarchical model}.%\index{conjugate hierarchical model}
+In a conjugate hierarchical model the intermediate distributions, in
+this case for \( \lambda_i \) and \( \beta \), are similar to the
+original distributions in the hierarchical model.  This fits with the
+Gibbs sampling requirement that these distributions be available.
 
 \subsection*{Gibbs Sampling for Digital Images}
 
 A simple model of a digital image consists of pixel elements arranged on
 a rectangular lattice with \( N \) sites.  Each pixel takes a value from
-a set \( S = \set{1,2, \dots, K} \) of levels, such as grayscale or
-color levels.  For simplicity and analogy to the Ising model, take a
-black and white image with pixel levels \( -1, +1 \).
-An image is a configuration \( \omega \in \Omega \) with
-an assignment of a level to each of the \( N \) sites.  Even modestly
-sized images result in immensely large configuration spaces, for a \(
-100 \times 100 \) binary image, \( \card{\Omega} = 2^{10000} \).
+a set \( S = \set{1,2, \dots, K} \), indicating grayscale or color.  For
+simplicity and analogy to the Ising model, take a black and white image
+with pixel levels \( -1, +1 \). An image is a configuration \( \omega
+\in \Omega \) assigning a level to each of the \( N \) sites.  Even
+modestly sized images result in immensely large configuration spaces.
+For a \( 100 \times 100 \) black and white image, \( \card{\Omega} = 2^{10
+{,}000} \).
 
 Consider a model for image degradation with additive noise, modeled by \(
-N \) independent identically distributed random variables \(
-\mathcal{N} = \set{\eta_1, \eta_2, \dots \eta_N} \).  Specifically, take
-noise with the \( \eta_i \) normally distributed with mean \( 0 \) and
-variance \( \sigma^2 \), that is \( \eta_i \sim N(0, \sigma^2) \).
-Letting \( \omega^{\text{blurred}} \) indicate the degraded or blurred
-image, \( \omega^{\text{blurred}} = \omega + \mathcal{N} \).  Since the
-values of \( \omega^{\text{blurred}} \) are real numbers, the resulting
-image is determined by rounding each value to the nearest value in \( S \).
+N \) independent identically distributed random variables \( \mathcal{N}
+= \set{\eta_1, \eta_2, \dots \eta_N} \).  Specifically, take noise with
+the \( \eta_i \) normally distributed with mean \( 0 \) and variance \(
+\sigma^2 \), that is \( \eta_i \sim N(0, \sigma^2) \). Letting \( \omega^
+{\text{blurred}} \) indicate the degraded or blurred image, \( \omega^{\text
+{blurred}} = \omega + \mathcal{N} \).  Since the values of \( \omega^{\text
+{blurred}} \) are real numbers, the resulting image is determined by
+rounding each value to the nearest value in \( S \).
 
 The relationship between the original image and the degraded version is
 probabilistic, given any image \( \omega \), there is some probability a
@@ -910,24 +993,26 @@ is%
 \] where any constant of proportionality will be absorbed into the
 denominator above.
 
-An image has patterns, i.e.\ contiguous regions of similar pixel
-values. On the other hand, if neighboring values are uncorrelated, the
-result is the visual equivalent of noise, reminiscent of the Ising
-model at high temperatures.  This is reminiscent of the Ising model,
-where after magnetization the lattice has high-degree long-range
-correlation between pixels, that is, image-like features.
+An image has patterns which are contiguous regions of similar pixel
+values.  This is reminiscent of the Ising model, where after
+magnetization the lattice has long-range correlation between pixels,
+that is, image-like features. On the other hand, if neighboring values
+are uncorrelated, the result is the visual equivalent of noise, also
+reminiscent of the Ising model at high temperatures.
 
 This suggests using the Boltzmann probability distribution with the
-Ising potential energy function as the prior distribution on images, that is
+Ising potential energy function as the prior distribution on images,
+that is
 \[
-    \Prob{\omega} \propto \EulerE^{-E_{\text{ising}}(\omega)/(\kT)}
+    \Prob{\omega} \propto \EulerE^{-E_{\text{ising}}(\omega)/({\text k}_
+    {\text{Boltz}}T)}
 \] where
 \[
     E_{\text{ising}}(\omega) = -J \sum\limits_{i=1}^{N} \sum\limits_{k=1}^4
-    \omega_{i, j} \omega_{\left\langle i \right\rangle[k]}
-\] is the nearest neighbor affinity. To retain the idea of correlated
-pixel values, let \( \kT/J = 1 < T_c \), the critical temperature below
-which a phase transition occurs.
+    \omega_i \omega_{\left\langle i \right\rangle[k]}
+\] is the nearest neighbor affinity.  To keep the idea of correlated
+pixel values, let \( {\text k}_{\text{Boltz}}T/J = 1 < T_c \), the
+critical temperature below which a phase transition occurs.
 
 Putting all the parts together, the posterior distribution, \( \Prob{\omega
 \given \omega^{\text{blurred}}} \) is
@@ -945,21 +1030,18 @@ of an energy function
     } \sum\limits_{i=1}^N(\omega_i^{\text{blurred}} - \omega_i)^{2} + E_
     {\text{ising}} \\
     &= \frac{1}{2\sigma^2 } \sum\limits_{i=1}^N(\omega_i^{\text{blurred}}
-    - \omega_i)^{2} - \sum\limits_{\langle i\rangle [k]]} \omega_i\omega_k
-    \\
+    - \omega_i)^{2} - \sum\limits_{\langle i\rangle [j]} \omega_i\omega_j.
 \end{align*}
-where \( {\langle i,j\rangle} \) indicates the set of nearest neighbor
-sites \( j \) for site \( i \).  (Continue to check signs on this energy
-function.)
+where \( {\langle i \rangle} \) indicates the set of nearest neighbor
+sites \( j \) for site \( i \).
 
 Finding the most probable original image \( \omega \) given \( \omega^{\text
-{blurred}} \) is thus equivalent to minimizing \( E_{\text{image}}(\omega
+{blurred}} \) is equivalent to minimizing \( E_{\text{image}}(\omega
 \given \omega^{\text{blurred}}) \).  The first term is a positive
 potential energy penalty for straying too far from the data \( \omega^{\text
 {blurred}} \) while the second term represents a negative potential
-energy reflecting the desire to align neighboring pixel values making
-them conform to the prior notion of a generic image.  The optimal
-solution balances between these two conflicting objectives.
+energy reflecting the desire to align neighboring pixel values.  The
+optimal solution balances these two conflicting objectives.
 
 Creating an energy function to minimize leads to a contrast in methods.
 The Ising model starts with an objective function and interprets it as a
@@ -969,9 +1051,9 @@ probabilistic situation with a Bayesian structure, leading to an energy
 function.
 
 To implement Gibbs sampling, the probability of \( \omega_i \)
-conditioned on \emph{all} the other sites depends on \emph{only} the sites in the
-nearest neighborhood set.  Suppressing the dependence on \( \omega^{\text
-{blurred}} \), this means
+conditioned on \emph{all} the other sites depends on \emph{only} the
+sites in the nearest neighborhood set.  Suppressing the dependence on \(
+\omega^{\text {blurred}} \), this means
 \begin{align*}
     \Prob{\omega_i \given \omega_j, j \ne i } &= \Prob { \omega_i \given
     \omega_j, j \in \langle i \rangle } \\
@@ -980,12 +1062,12 @@ nearest neighborhood set.  Suppressing the dependence on \( \omega^{\text
 \end{align*}
 where
 \[
-    E_i(\omega_i \given \omega_j, k \in \langle i\rangle) = \frac{1}{2\sigma^2}
+    E_i(\omega_i \given \omega_j, j \in \langle i\rangle) = \frac{1}{2\sigma^2}
     (\omega_i^{\text{blurred}}-\omega_i)^2 - \sum\limits_{\langle i
-    \rangle[k]]} \omega_i\omega_k.
-\] (Continue to check signs on this energy function.) A probability
-distribution whose conditional probabilities depend on only the values
-in a neighborhood system is called a \defn{Gibbs distribution}%
+    \rangle[j]} \omega_i\omega_j.
+\] A probability distribution whose conditional probabilities depend on
+only the values in a neighborhood system is called a \defn{Gibbs
+distribution}%
 \index{Gibbs distribution}
 and is an example of a larger notion called a \emph{Markov random field}.%
 \index{Markov random field}
@@ -995,14 +1077,15 @@ sequence of raster scans, in order by rows or columns, guaranteeing all
 sites are visited many times.  At a selected site \( i \), select \(
 \omega_i = k \) with probability
 \[
-    \Prob{\omega_i = \ell} \propto \EulerE^{-\frac{1}{2\sigma^2}(\omega_i^{\text
-    {blurred}}-\ell)^2 - \sum\limits_{\langle i \rangle [k]]} \ell \omega_k}.
+    \Prob{\omega_i = \ell} \propto \EulerE^{-\frac{1}{2\sigma^2}(\omega_i^
+    {\text {blurred}}-\ell)^2 - \sum\limits_{\langle i \rangle [j]} \ell
+    \omega_j}.
 \] Repeating this with many raster scans results in a sequence of images
 that approximates a sample from the posterior distribution.  Note the
 connection to the previous simple Gibbs sampling algorithm, generating a
 sample from \( f(x) \) by sampling iteratively from the conditional
-distributions, except that now there are many more conditional distributions, one
-for each pixel.
+distributions, except that now there are many more conditional
+distributions, one for each pixel.
 
 Gibbs sampling fits into the Hastings generalization of the Metropolis
 algorithm in the following way:  In the second step of the
@@ -1049,28 +1132,40 @@ the rate of convergence is slow.  Theoretically, for a \( 100 \times 100
 practice, it takes about \( 300 - 1000 \) raster scans to produce
 acceptable results.
 
-For a black and white (\( k = -1 \) or \( 1 \)) image Gibbs sampling with
-annealing is especially straightforward to implement using the ideas of
-the section on Gibbs sampling.  At the pixel \( \omega_i \) define
+For a black and white (\( k = -1 \) or \( 1 \)) image Gibbs sampling
+with annealing is especially straightforward to implement using the
+ideas of the section on Gibbs sampling.  At the pixel \( \omega_i \)
+define
 \[
     E^k = \frac{1}{2 \sigma^2}( k - \omega_i^{\text{blurred}})^2 + k
-    \sum\limits_{\langle i,j\rangle} \omega_j.
-\] Set \( \omega_i = \pm 1 \) with probability
+    \sum\limits_{\langle i \rangle[j]} \omega_j.
+\] Set \( \omega_i = k \) with probability
 \[
-    \frac{\EulerE^{-E^k/T}}{\EulerE^{-E^{-1}/(\kT)} + \EulerE^{-E^1/(\kT)}}.
-\] (Continue to check signs on this energy function.  Note also the
-multiple uses of the symbol \( k \) here along with possible typos.)
+    \frac{\EulerE^{-E^k/{\text k}_{\text{Boltz}}T}}{\EulerE^{-E^{-1}/({\text
+    k}_{\text{Boltz}}T)} + \EulerE^{-E^1/({\text k}_{\text{Boltz}}T)}}.
+\]
 
 \visual{Section Starter Question}{../../../../CommonInformation/Lessons/question_mark.png}
 \section*{Section Ending Answer}
+
+For two continuous random variables \( X \) and \( Y \), Bayes' rule can
+be stated in terms of the conditional and marginal densities,
+\begin{align*}
+    f_{X \given Y = y}(x) &= \frac{f_{X,Y}(x,y)}{f_Y(y)}, \\
+    f_{Y \given X = x}(y) &= \frac{f_{X,Y}(x,y)}{f_X(x)}.
+\end{align*}
+Therefore
+\[
+    f_{X \given Y=y}(x) = \frac{f_{Y \given X = x}(y) f_X(x)}{f_Y(y)}.
+\]
 
 \subsection*{Sources} The sections on the general theory of the Gibbs
 sampler and the bivariate binomial are adapted from the article
 ``Explaining the Gibbs Sampler'' by George Casella and Edward George!
 \cite{casella92}.  The section on Gibbs Sampling from the Bivariate
 Normal is adapted from ``A simple Gibbs sampler'' by Darren Wilkinson
-\cite{wilkinson}. The subsection on A Gibbs Sampler for a Spam Filter is
-adapted from ``Three Simple Applications of Markov Chains and Gibbs
+\cite{wilkinson}.  The subsection on A Gibbs Sampler for a Spam Filter
+is adapted from ``Three Simple Applications of Markov Chains and Gibbs
 Sampling'' by Gui Larangeira
 \cite{larangeira}.  The subsection on theory and Bayesian hierarchical
 models is adapted from ``The Evolution of Markov Chain Monte Carlo
@@ -1110,26 +1205,28 @@ Methods'' by Richey
 \end{exercise}
 \begin{solution}
     \begin{align*}
-        \int\limits_{-\infty}^{\infty}f(x, y) \df{y} &= \int\limits_{-\infty}^
+        &\int\limits_{-\infty}^{\infty}f(x, y) \df{y} = \int\limits_{-\infty}^
         {\infty}\frac{1}{2\pi \sqrt{1 - \rho^2}} \EulerE^{- \frac{x^2 -
         2 \rho x y + y^2}{2(1-\rho^2)}} \df{y} \\
-        &= \frac{1}{2\pi \sqrt{1 - \rho^2}} \EulerE^{- \frac{x^2}{2(1-\rho^2)}}
-        \EulerE^{\frac{\rho^2 x^2}{2(1-\rho^2)}} \int\limits_{-\infty}^{\infty}
-        \EulerE^{- \frac{\rho^2 x^2- 2 \rho x y + y^2}{2(1-\rho^2)}} \df
-        {y} \\
-        &= \frac{1}{2\pi \sqrt{1 - \rho^2}} \EulerE^{- \frac{x^2}{2(1-\rho^2)}}
-        \EulerE^{\frac{\rho^2 x^2}{2(1-\rho^2)}} \int\limits_{-\infty}^{\infty}
-        \EulerE^{- \frac{(\rho x - y)^2}{2(1-\rho^2)}} \df{y} \\
-        &= \frac{1}{2\pi \sqrt{1 - \rho^2}} \EulerE^{- \frac{x^2}{2(1-\rho^2)}}
-        \EulerE^{\frac{\rho^2 x^2}{2(1-\rho^2)}} \int\limits_{-\infty}^{\infty}
-        \EulerE^{- \frac{z^2}{2(1-\rho^2)}} \df{z} \\
-        &= \frac{1}{2\pi \sqrt{1 - \rho^2}} \EulerE^{- \frac{x^2}{2(1-\rho^2)}}
-        \EulerE^{\frac{\rho^2 x^2}{2(1-\rho^2)}} \int\limits_{-\infty}^{\infty}
-        \EulerE^{- \frac{z^2}{2(1-\rho^2)}} \df{z} \\
-        &= \frac{1}{2\pi \sqrt{1 - \rho^2}} \EulerE^{- \frac{x^2}{2(1-\rho^2)}}
-        \EulerE^{\frac{\rho^2 x^2}{2(1-\rho^2)}} \sqrt{2\pi(1 - \rho^2)}
+        &\qquad= \frac{1}{2\pi \sqrt{1 - \rho^2}} \EulerE^{- \frac{x^2}{2
+        (1-\rho^2)}} \EulerE^{\frac{\rho^2 x^2}{2(1-\rho^2)}} \int\limits_
+        {-\infty}^{\infty} \EulerE^{- \frac{\rho^2 x^2- 2 \rho x y + y^2}
+        {2(1-\rho^2)}} \df {y} \\
+        &\qquad= \frac{1}{2\pi \sqrt{1 - \rho^2}} \EulerE^{- \frac{x^2}{2
+        (1-\rho^2)}} \EulerE^{\frac{\rho^2 x^2}{2(1-\rho^2)}} \int\limits_
+        {-\infty}^{\infty} \EulerE^{- \frac{(\rho x - y)^2}{2(1-\rho^2)}}
+        \df{y} \\
+        &\qquad= \frac{1}{2\pi \sqrt{1 - \rho^2}} \EulerE^{- \frac{x^2}{2
+        (1-\rho^2)}} \EulerE^{\frac{\rho^2 x^2}{2(1-\rho^2)}} \int\limits_
+        {-\infty}^{\infty} \EulerE^{- \frac{z^2}{2(1-\rho^2)}} \df{z} \\
+        &\qquad= \frac{1}{2\pi \sqrt{1 - \rho^2}} \EulerE^{- \frac{x^2}{2
+        (1-\rho^2)}} \EulerE^{\frac{\rho^2 x^2}{2(1-\rho^2)}} \int\limits_
+        {-\infty}^{\infty} \EulerE^{- \frac{u^2}{2}} \sqrt{1-\rho^2}\df{u}
         \\
-        &= \frac{1}{\sqrt{2\pi}} \EulerE^{- \frac{x^2}{2}}
+        &\qquad= \frac{1}{2\pi \sqrt{1 - \rho^2}} \EulerE^{- \frac{x^2}{2
+        (1-\rho^2)}} \EulerE^{\frac{\rho^2 x^2}{2(1-\rho^2)}} \sqrt{2\pi
+        (1 - \rho^2)} \\
+        &\qquad= \frac{1}{\sqrt{2\pi}} \EulerE^{- \frac{x^2}{2}}.
     \end{align*}
 \end{solution}
 \begin{exercise}
@@ -1139,26 +1236,25 @@ Methods'' by Richey
     \[
         f(x, y) = \frac{1}{2\pi \sqrt{1 - \rho^2}} \EulerE^{- \frac{x^2
         - 2 \rho x y + y^2}{2(1-\rho^2)}}.
-    \] Show that the \( x \) conditional given \( y \)  is
+    \] Show that the \( x \) conditional given \( y \) is
     \[
-        f_{x}(x) = \frac{1}{\sqrt{2\pi}} \EulerE^{-x^2/2}.
+        f_{x \given y}(x \given y) = \frac{1}{\sqrt{2\pi (1 - \rho^2)}}
+        \EulerE^{- \frac{(x - \rho y^)2}{2(1-\rho^2)} }.
     \]
 \end{exercise}
 \begin{solution}
-  \begin{align*}
-    f_{x \given y}(x) &= f(x,y)/f_y(y) \\
-    &= \frac{1}{2\pi \sqrt{1 - \rho^2}} \EulerE^{- \frac{x^2
-        - 2 \rho x y + y^2}{2(1-\rho^2)}}/ 
-    \frac{1}{\sqrt{2\pi}} \EulerE^{-y^2/2} \\
-    &= \frac{1}{\sqrt{2\pi (1 - \rho^2)}}
-    \EulerE^{- \frac{x^2
-        - 2 \rho x y + y^2}{2(1-\rho^2)} + (1-\rho^2)
-      y^2/(2(1-\rho^2))} \\
-    &= \frac{1}{\sqrt{2\pi (1 - \rho^2)}}
-    \EulerE^{- \frac{x^2
+    \begin{align*}
+        &f_{x \given y}(x \given y) = f(x,y)/f_y(y) \\
+        &\qquad= \frac{1}{2\pi \sqrt{1 - \rho^2}} \EulerE^{- \frac{x^2 -
+        2 \rho x y + y^2}{2(1-\rho^2)}} \left / \right. \frac{1}{\sqrt{2\pi}}
+        \EulerE^{-y^2/2} \\
+        &\qquad= \frac{1}{\sqrt{2\pi (1 - \rho^2)}} \EulerE^{- \frac{x^2
+        - 2 \rho x y + y^2}{2(1-\rho^2)} + \frac{(1-\rho^2) y^2}{2(1-\rho^2)}}
+        \\
+        &\qquad= \frac{1}{\sqrt{2\pi (1 - \rho^2)}} \EulerE^{- \frac{x^2
         - 2 \rho x y + \rho^2 y^2}{2(1-\rho^2)} } \\
-    &= \frac{1}{\sqrt{2\pi (1 - \rho^2)}}
-    \EulerE^{- \frac{(x - \rho y^)2}{2(1-\rho^2)} }
+        &\qquad= \frac{1}{\sqrt{2\pi (1 - \rho^2)}} \EulerE^{- \frac{(x
+        - \rho y)^2}{2(1-\rho^2)} }.
     \end{align*}
 \end{solution}
 
@@ -1186,9 +1282,7 @@ Methods'' by Richey
     \item
 \end{enumerate}
 
-\section*{\solutionsname}
-\loadSolutions
-
+\section*{\solutionsname} \loadSolutions
 
 \hr
 
@@ -1197,27 +1291,3 @@ Methods'' by Richey
 Last modified:  \flastmod
 
 \end{document}
-
-File name                  : gibbsSampler.tex
-Number of characters       : 48726
-Number of words            : 5735
-Percent of complex words   : 21.41
-Average syllables per word : 1.8882
-Number of sentences        : 166
-Average words per sentence : 34.5482
-Number of text lines       : 986
-Number of blank lines      : 168
-Number of paragraphs       : 165
-
-
-READABILITY INDICES
-
-Fog                        : 22.3842
-Flesch                     : 12.0243
-Flesch-Kincaid             : 20.1649
-
-
-
-%%% Local Variables:
-%%% TeX-master: t
-%%% End:
