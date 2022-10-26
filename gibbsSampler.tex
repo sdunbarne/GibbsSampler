@@ -1179,6 +1179,21 @@ Methods'' by Richey
 
 \subsection*{Algorithm}
 
+\begin{algorithm}
+  \DontPrintSemicolon
+  \KwData{Number of iterations \( N \), ``Burn in'' iterations \( T \), distributions
+    and parameters}
+  \KwResult{Plots of Gibbs sampler results}
+  Initialize \( X_0, Y_0 \)\;
+  \For{\( 1:N \)}{
+    Generate \( X'_j \sim f(x \given Y'_j = y'_j) \)\;
+    Generate \( Y'_{j+1} \sim f(y \given X'_j = x'_j) \)\;
+  }
+  Plot images of resulting distributions and parameters from \( T \)
+  to \( N \);
+  \caption{Gibbs sampler algorithm}
+\end{algorithm}
+
 \subsection*{Scripts}
 
 \input{gibbssampler_scripts}
@@ -1291,3 +1306,7 @@ Methods'' by Richey
 Last modified:  \flastmod
 
 \end{document}
+
+%%% Local Variables:
+%%% TeX-master: t
+%%% End:

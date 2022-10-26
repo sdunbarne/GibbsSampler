@@ -1,0 +1,143 @@
+\begin{description}
+
+% \item[Geogebra] 
+
+% \link{  .ggb}{GeoGebra applet}
+
+\item[R] 
+
+\link{http://www.math.unl.edu/~sdunbar1/bivariatenormalsampler.R}{R script for
+Gibbs sampler for marginals from bivariate normal.}
+
+\begin{lstlisting}[language=R]
+gibbs<-function (n, rho) 
+{
+        mat <- matrix(ncol = 2, nrow = n)
+        x <- 0
+        y <- 0
+        mat[1, ] <- c(x, y)
+        for (i in 2:n) {
+                x <- rnorm(1, rho * y, sqrt(1 - rho^2))
+                y <- rnorm(1, rho * x, sqrt(1 - rho^2))
+                mat[i, ] <- c(x, y)
+        }
+        mat
+}
+
+f  <- function(x) { return( (1/sqrt(2 * pi)) * exp(-x^2/2) )}
+
+N  <-  1000
+rho  <-  0.8
+
+bvngs <- gibbs(N, rho)
+bvn <- bvngs[(N/2 + 1):N, ]
+
+par(mfrow=c(4,2))
+hist(bvn[,1], freq=FALSE, 40)
+curve(f, -4, 4, add=TRUE, col="red")
+hist(bvn[,2], freq=FALSE, 40)
+curve(f, -4, 4, add=TRUE, col="red")
+qqnorm(bvn[ , 1], main="Q-Q Plot of bvn[, 1]")
+qqnorm(bvn[ , 2], main="Q-Q Plot of bvn[ ,2]")
+plot(bvn, col=1:500)
+plot(bvn, type="l")
+plot(ts(bvn[ , 1]))
+plot(ts(bvn[ , 2]))
+par(mfrow=c(1,1))
+\end{lstlisting}
+\item[R] 
+
+\link{http://www.math.unl.edu/~sdunbar1/normalparam.R}{R script for
+Gibbs sampler for normal parameters.}
+
+\begin{lstlisting}[language=R]
+# summary statistics of sample
+n    <- 30
+ybar <- 15
+s2   <- 3
+
+# sample from the joint posterior (mu, tau | data)
+mu      <- rep(NA, 11000)
+tau <- rep(NA, 11000)
+T       <- 1000    # burnin
+tau[1] <-  1
+## tau[1]  <- 1  # initialisation
+for(i in 2:11000) {   
+    mu[i]  <- rnorm(n = 1, mean = ybar, sd = sqrt(1 / (n * tau[i - 1])))
+##    sigmasq[i] <- sigmasq[i-1] * rchisq(n = 1, n-1) / (n - 1)
+    tau[i] <- rgamma(n = 1, shape = n / 2, scale = 2 / ((n - 1) * s2 + n * (mu[i] - ybar)^2))
+}
+mu  <- mu[-(1:T)]   # remove burnin
+tau <- tau[-(1:T)] # remove burnin
+
+par(mfrow=c(1,2))
+hist(mu)
+hist(tau)
+par(mfrow=c(1,1))
+\end{lstlisting}  
+
+\link{http://www.math.unl.edu/~sdunbar1/bivariatenormalsampler.R}{R script for
+Gibbs sampler for estimating spam prevalence.}
+
+\begin{lstlisting}[language=R]
+N <- 10000            # Number of iterations
+Nb <- 2000; N1 <- N+1  # Burn-in
+
+psi <- numeric(N) 
+psi[1] <- .5          # Initial value
+
+alpha.0  <- 1.0
+beta.0  <- 1.0
+eta <- 0.99
+theta <- 0.97
+r <- 233
+n  <- 1000
+
+for(i in 2:N) {      # Gibbs Sampler Loop
+tau<-psi[i-1]*eta+(1-psi[i-1])* (1-theta)        
+X <- rbinom(1, r, psi[i-1]* eta/tau)
+Y <- rbinom(1, n-r, psi[i-1]*(1-eta)/(1-tau))
+psi[i] <- rbeta(1, alpha.0+X+Y, beta.0+n-X-Y)
+}
+
+gspsi  <- mean(psi[Nb:N])
+
+par(mfrow=c(2,2))
+hist(psi)
+plot(1:N,cumsum(psi)/(1:N),type="l",ylab= "psi", ylim=c(0.20,0.24))
+plot(psi,type='p',pch='.',ylim=c(0.15,0.30))
+acf(psi)
+\end{lstlisting}
+
+% \item[Octave]
+
+% \link{http://www.math.unl.edu/~sdunbar1/    .m}{Octave script for .}
+
+% \begin{lstlisting}[language=Octave]
+
+% \end{lstlisting}
+
+% \item[Perl] 
+
+% \link{http://www.math.unl.edu/~sdunbar1/    .pl}{Perl PDL script for .}
+
+% \begin{lstlisting}[language=Perl]
+
+% \end{lstlisting}
+
+% \item[SciPy] 
+
+% \link{http://www.math.unl.edu/~sdunbar1/    .py}{Scientific Python script for .}
+
+% \begin{lstlisting}[language=Python]
+
+% \end{lstlisting}
+
+\end{description}
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
